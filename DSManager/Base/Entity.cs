@@ -9,7 +9,7 @@ namespace DSManager
     interface Entity
     {
           void Begin();
-          void Update(float delta);
+          void Update(uint delta);
           void End();
     }
 }

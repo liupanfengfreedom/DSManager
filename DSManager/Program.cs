@@ -13,14 +13,27 @@ namespace DSManager
 {
     class ct:Entity
     {
+        int counter = 0;
+        Timerhandler th;
         public virtual void Begin()
         {
+            int x = 9;
+            th = new Timerhandler((string s) => {
+                Console.WriteLine("k1 ct" + s);
+                Console.WriteLine("x " + x);
+                if (counter++ == 5)
+                {
+                    th.kill = true;
+                }
+            }, "ct timer event", 1000, true);
             MessageManager.GetSingleton().AddMessagelistener(this, in KeyMap.k1, (ref string msg) => {
                 Console.WriteLine("k1 ct" + msg);
                 msg += "00000000";
             });
+            Global.GetComponent<Timer>().Add(th);
+
         }
-        public virtual void Update(float delta)
+        public virtual void Update(uint delta)
         {
             
         }
@@ -31,14 +44,19 @@ namespace DSManager
     }
     class ct1 : Entity
     {
+        Timerhandler th = new Timerhandler((string s) => {
+            Console.WriteLine("k1 ct" + TimeHelper.Now());
+        }, "ct1 timer event", 2000, true);
         public virtual void Begin()
         {
             MessageManager.GetSingleton().AddMessagelistener(this, in KeyMap.k1, (ref string msg) => {
                 Console.WriteLine("k1 ct" + msg);
                 msg += "111111";
             });
+            Global.GetComponent<Timer>().Add(th);
+
         }
-        public virtual void Update(float delta)
+        public virtual void Update(uint delta)
         {
 
         }
@@ -53,6 +71,20 @@ namespace DSManager
         {
             Global.AddComponent<ct>();
             Global.AddComponent<ct1>();
+            while (true)
+            {
+                try
+                {                   
+                    Global.Update(10);
+                }
+                catch (Exception e)
+                {
+                throw new Exception($"main update: {e.Message}");
+
+                }
+            }
+
+
             int i = 0;
             while (true)
             {
@@ -70,19 +102,6 @@ namespace DSManager
                 }
             }
             DSManager.GetSingleton().cleardss();
-            while (true)
-            {
-                try
-                {
-                    Thread.Sleep(10);
-                    Global.Update(10);
-                }
-                catch (Exception e)
-                {
-                throw new Exception($"main update: {e.Message}");
-
-                }
-            }
         }
     }
 }
