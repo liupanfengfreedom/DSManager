@@ -47,6 +47,7 @@ namespace DSManager
                 if (timerhandles[i].kill)
                 { 
                     timerhandles.Remove(timerhandles[i]);
+                    continue;
                 }
                 timerhandles[i].time -= (int)delta;
                 if (timerhandles[i].time <= 0)

@@ -10,7 +10,7 @@ using System.Reflection;
 
 namespace DSManager.LuaBase
 {
-    class luabase
+ public class luabase
     {
         [DllImport("kernel32.dll", SetLastError = true, ExactSpelling = true)]
         static extern bool FreeConsole();

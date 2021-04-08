@@ -80,15 +80,19 @@
     <Compile Include="Base\Timer.cs" />
     <Compile Include="DSManager\Launchserver.cs" />
     <Compile Include="Base\Entity.cs" />
+    <Compile Include="LoadBalance\DSMproxy.cs" />
+    <Compile Include="LoadBalance\ServertoDS.cs" />
     <Compile Include="LuaBase\luabase.cs" />
     <Compile Include="DSManager\DSManager.cs" />
     <Compile Include="Message\KChannel.cs" />
     <Compile Include="Message\KeyMap.cs" />
     <Compile Include="Message\KService.cs" />
     <Compile Include="Message\MessageManager.cs" />
+    <Compile Include="Message\Session.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="window_file_log.cs" />
+    <Compile Include="DSManager\DSClient.cs" />
+    <Compile Include="utility\window_file_log.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

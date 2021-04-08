@@ -10,10 +10,12 @@ using System.Threading.Tasks;
 
 namespace DSManager
 {
-    public delegate void OnUserLevelReceivedCompleted(ref byte[] buffer);
-    class KChannel
+  public delegate void OnUserLevelReceivedCompleted(ref byte[] buffer);
+  public  class KChannel
     {
+        const int PINGPERIOD = 10;//s
         public OnUserLevelReceivedCompleted onUserLevelReceivedCompleted;
+        public Action ondisconnect;
         Timerhandler th;
         public uint Id { get; set; }
         public uint requestConn { get; set; }
@@ -36,9 +38,23 @@ namespace DSManager
                 this.socket.Send(buffer.ToArray(),buffer.Length, this.remoteEndPoint);
             };
             kcp = new Kcp(this.Id, handle);
-            kcp.SetMtu(1400);
-            kcp.NoDelay(1, 10, 2, 1);  //fast
+            kcp.NoDelay(1, 10, 2, 1);//fast
+            kcp.WndSize(64, 64);
+            kcp.SetMtu(512);
             this.isConnected = true;
+
+            lastpingtime = (uint)TimeHelper.ClientNowSeconds();
+            th = new Timerhandler((string s) =>
+            {
+                if ((uint)TimeHelper.ClientNowSeconds() - lastpingtime > PINGPERIOD * 2)
+                {
+                    th.kill = true;
+                    disconnect();
+                }
+                Console.WriteLine("check ping");
+
+            }, "", PINGPERIOD * 1000 * 2, true);
+            Global.GetComponent<Timer>().Add(th);
         }
         public KChannel(uint requestConn, UdpClient socket, IPEndPoint remoteEndPoint)//client do this
         {
@@ -52,6 +68,10 @@ namespace DSManager
                 this.socket.Send(cacheBytes,8, this.remoteEndPoint);
             }, "", 200, true);
             Global.GetComponent<Timer>().Add(th);
+        }
+        ~KChannel()
+        {
+            Console.WriteLine("~KChannel()");
         }
         public void HandleAccept()//server do this
         {
@@ -72,25 +92,46 @@ namespace DSManager
                 this.socket.Send(buffer.ToArray(), buffer.Length, this.remoteEndPoint);
             };
             kcp = new Kcp(this.Id, handle);
-            kcp.SetMtu(1400);
-            kcp.NoDelay(1, 10, 2, 1);  //fast
+            kcp.NoDelay(1, 10, 2, 1);//fast
+            kcp.WndSize(64, 64);
+            kcp.SetMtu(512);
             this.isConnected = true;
             th.kill = true;
-            th = new Timerhandler((string s) => {
+            th = new Timerhandler((string s) =>
+            {
                 cacheBytes.WriteTo(0, KcpProtocalType.PING);
+                cacheBytes.WriteTo(4, this.Id);
                 //Log.Debug($"client connect: {this.Conn}");
-                this.socket.Send(cacheBytes, 4, this.remoteEndPoint);
-            }, "", 6000, true);
+                this.socket.Send(cacheBytes, 8, this.remoteEndPoint);
+                Console.WriteLine("ping");
+            }, "", PINGPERIOD * 1000, true);
             Global.GetComponent<Timer>().Add(th);
+        }
+        public void HandlePing()
+        {
+            lastpingtime = (uint)TimeHelper.ClientNowSeconds();
+            Console.WriteLine("ping");
+
         }
         public void HandleRecv(UdpReceiveResult urr)
         {
-            if (remoteEndPoint != urr.RemoteEndPoint)
-            {
-                kService.EPChannels.Remove(remoteEndPoint);
+            //if (remoteEndPoint.Port != urr.RemoteEndPoint.Port&& remoteEndPoint.Address != urr.RemoteEndPoint.Address)//here is in case wifi toorfrom 4g 
+            //{
+            //    kService.EPChannels.Remove(remoteEndPoint);
                 remoteEndPoint = urr.RemoteEndPoint;
-            }
+            //}
             this.kcp.Input(urr.Buffer);
+
+        }
+
+        public void Update(uint timeNow)
+        {
+            if (!this.isConnected)
+            {
+                return;
+            }
+            //this.kcp.Check(DateTime.UtcNow);
+            this.kcp.Update(DateTime.UtcNow);
             int len;
             while ((len = kcp.PeekSize()) > 0)
             {
@@ -101,28 +142,22 @@ namespace DSManager
                 }
             }
         }
-        public void HandlePing()
+        public void Send(ref byte[] buffer)
         {
-            lastpingtime = (uint)TimeHelper.ClientNowSeconds();
-        }
-        public void Update(uint timeNow)
-        {
-            if (timeNow - lastpingtime > 600)
+            if (this.isConnected)
             {
-                disconnect();
+                var res = this.kcp.Send(buffer);//send by handle.out
+                if (res != 0)
+                {
+                    //Console.WriteLine($"kcp send error");
+                }
             }
-            // 如果还没连接上，发送连接请求
-            if (!this.isConnected)
-            {
-                return;
-            }
-            //this.kcp.Check(DateTime.UtcNow);
-            this.kcp.Update(DateTime.UtcNow);
         }
         void disconnect()
         {
             kService.idChannels.Remove(Id);
             kService.EPChannels.Remove(remoteEndPoint);
+            ondisconnect.Invoke();
         }
     }
     internal class kcphandle : IKcpCallback

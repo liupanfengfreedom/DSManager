@@ -15,24 +15,27 @@ namespace DSManager
 		public const uint FIN = 3;
 		public const uint PING = 4;
 	}
-	class KService
+	public delegate void OnAcceptAKchannel(ref KChannel channel);
+public	class KService
     {
+		public OnAcceptAKchannel onAcceptAKchannel;
 		public uint TimeNow { get; set; }
 		private uint IdGenerater = 1000;
 		public readonly Dictionary<long, KChannel> idChannels = new Dictionary<long, KChannel>();
 		public readonly Dictionary<IPEndPoint, KChannel> EPChannels = new Dictionary<IPEndPoint, KChannel>();
 		private UdpClient socket;
-		public KService(IPEndPoint ipEndPoint)//for server
+		public KService(int port)//for server
 		{
-			this.socket = new UdpClient(ipEndPoint);
-
+			this.socket = new UdpClient(new IPEndPoint(IPAddress.Any, port));
 			this.StartRecv();
+			Update();
 		}
 
 		public KService()//for client
 		{
 			this.socket = new UdpClient(new IPEndPoint(IPAddress.Any, 0));
 			this.StartRecv();
+			Update();
 		}
 		public async void StartRecv()
 		{
@@ -94,7 +97,7 @@ namespace DSManager
 							break;
 						case KcpProtocalType.PING://client ping server
 							// 长度!=12，不是PING消息
-							if (messageLength != 4)
+							if (messageLength != 8)
 							{
 								break;
 							}
@@ -119,9 +122,15 @@ namespace DSManager
 			else
 			{ 
 			    uint requestConn = BitConverter.ToUInt32(udpReceiveResult.Buffer, 4);
-				KChannel channel = new KChannel(++this.IdGenerater, requestConn,this.socket, udpReceiveResult.RemoteEndPoint,this);
+				uint newid;
+				do {
+					newid = this.IdGenerater++;
+				}
+				while (idChannels.ContainsKey(newid));
+				KChannel channel = new KChannel(newid, requestConn,this.socket, udpReceiveResult.RemoteEndPoint,this);
 				EPChannels.Add(udpReceiveResult.RemoteEndPoint, channel);
 				idChannels.Add(channel.Id, channel);
+				onAcceptAKchannel.Invoke(ref channel);
 			}
 			EPChannels[udpReceiveResult.RemoteEndPoint].HandleAccept();
 		}
@@ -133,10 +142,18 @@ namespace DSManager
 			if (idChannels.ContainsKey(requestConn))
 			{
 				idChannels[requestConn].HandleConnnect(id);
+				idChannels.Add(id, idChannels[requestConn]);
+				idChannels.Remove(requestConn);
 			}
 			else
 			{ 
 			}
+		}
+		public KChannel CreateAConnectChannel(IPEndPoint remotserveripEndPoint)//client do this
+		{
+			KChannel channel = new KChannel(this.IdGenerater++, this.socket, remotserveripEndPoint);
+			idChannels.Add(channel.requestConn, channel);
+			return channel;
 		}
 		private void HandleDisConnect(UdpReceiveResult udpReceiveResult)
 		{
@@ -152,9 +169,9 @@ namespace DSManager
 		}
 		private void HandlePing(UdpReceiveResult udpReceiveResult)
 		{
-			uint requestConn = BitConverter.ToUInt32(udpReceiveResult.Buffer, 0);
+			uint id = BitConverter.ToUInt32(udpReceiveResult.Buffer,4);
             KChannel kChannel;
-            if (!this.idChannels.TryGetValue(requestConn, out kChannel))
+            if (!this.idChannels.TryGetValue(id, out kChannel))
             {
                 return;
             }
@@ -170,13 +187,27 @@ namespace DSManager
 			// 处理chanel
 			kChannel.HandleRecv(udpReceiveResult);
 		}
-		public void Update()
-		{
-			this.TimeNow = (uint)TimeHelper.ClientNowSeconds();
-			for (int i = 0; i < idChannels.Values.Count; i++)
-			{
-				idChannels.Values.ToArray()[i].Update(TimeNow);
-			}
-		}
-	}
+        public void Update()
+        {
+            Task.Run(async () =>
+            {
+                try
+                {
+                    while (true)
+                    {
+                        await Task.Delay(10);
+                        this.TimeNow = (uint)TimeHelper.ClientNowSeconds();
+                        for (int i = 0; i < idChannels.Values.Count; i++)
+                        {
+                            idChannels.Values.ToArray()[i].Update(TimeNow);
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e);
+                }
+            });
+        }
+    }
 }

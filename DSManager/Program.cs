@@ -69,8 +69,10 @@ namespace DSManager
     {
         static void Main(string[] args)
         {
-            Global.AddComponent<ct>();
-            Global.AddComponent<ct1>();
+            //Global.AddComponent<ServertoDS>();
+            Global.AddComponent<DSClient>();
+            //Global.AddComponent<ct>();
+            //Global.AddComponent<ct1>();
             while (true)
             {
                 try
@@ -83,8 +85,6 @@ namespace DSManager
 
                 }
             }
-
-
             int i = 0;
             while (true)
             {

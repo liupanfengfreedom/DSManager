@@ -16,7 +16,7 @@ namespace DSManager
         int startingport = 8000;
         string wanip = "120.55.126.186";//WAN
         string dspath = "";
-        public Launchserver() : base("config")
+        public Launchserver() : base("Launchserver")
         {
             LuaTable dsinfor = GetValueFromLua<LuaTable>("dsinfor");
             startingport = (int)(Int64)dsinfor["startingport"];
