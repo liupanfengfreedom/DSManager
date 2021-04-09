@@ -21,7 +21,7 @@ namespace DSManager
             this.channel.onUserLevelReceivedCompleted += (ref byte[] buffer) =>
             {
                 var str = System.Text.Encoding.UTF8.GetString(buffer);
-                Console.WriteLine(str);
+                //Console.WriteLine(str);
                 ASCIIEncoding asen = new ASCIIEncoding();
                 byte[] buffer1 = asen.GetBytes(str + "fromserver");
                 send(ref buffer1);

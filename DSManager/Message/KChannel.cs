@@ -13,7 +13,7 @@ namespace DSManager
   public delegate void OnUserLevelReceivedCompleted(ref byte[] buffer);
   public  class KChannel
     {
-        const int PINGPERIOD = 10;//s
+        const int PINGPERIOD = 1;//s
         public OnUserLevelReceivedCompleted onUserLevelReceivedCompleted;
         public Action ondisconnect;
         Timerhandler th;
@@ -46,14 +46,14 @@ namespace DSManager
             lastpingtime = (uint)TimeHelper.ClientNowSeconds();
             th = new Timerhandler((string s) =>
             {
-                if ((uint)TimeHelper.ClientNowSeconds() - lastpingtime > PINGPERIOD * 2)
+                if ((uint)TimeHelper.ClientNowSeconds() - lastpingtime > PINGPERIOD * 9)
                 {
                     th.kill = true;
                     disconnect();
                 }
-                Console.WriteLine("check ping");
+                //Console.WriteLine("check ping");
 
-            }, "", PINGPERIOD * 1000 * 2, true);
+            }, "", PINGPERIOD * 1000 *10, true);
             Global.GetComponent<Timer>().Add(th);
         }
         public KChannel(uint requestConn, UdpClient socket, IPEndPoint remoteEndPoint)//client do this
@@ -110,16 +110,19 @@ namespace DSManager
         public void HandlePing()
         {
             lastpingtime = (uint)TimeHelper.ClientNowSeconds();
-            Console.WriteLine("ping");
+            //Console.WriteLine("ping");
 
         }
         public void HandleRecv(UdpReceiveResult urr)
         {
-            //if (remoteEndPoint.Port != urr.RemoteEndPoint.Port&& remoteEndPoint.Address != urr.RemoteEndPoint.Address)//here is in case wifi toorfrom 4g 
-            //{
-            //    kService.EPChannels.Remove(remoteEndPoint);
-                remoteEndPoint = urr.RemoteEndPoint;
-            //}
+            if (kService != null)
+            {
+                if (remoteEndPoint.Port != urr.RemoteEndPoint.Port || remoteEndPoint.Address.ToString() != urr.RemoteEndPoint.Address.ToString())//here is in case wifi toorfrom 4g 
+                {
+                    kService.EPChannels.Remove(remoteEndPoint);
+                    remoteEndPoint = urr.RemoteEndPoint;
+                }
+            }
             this.kcp.Input(urr.Buffer);
 
         }
@@ -157,6 +160,8 @@ namespace DSManager
         {
             kService.idChannels.Remove(Id);
             kService.EPChannels.Remove(remoteEndPoint);
+            Console.WriteLine("kService.idChannels.Count :" + kService.idChannels.Count);
+            Console.WriteLine("kService.idChannels.Count :" + kService.EPChannels.Count);
             ondisconnect.Invoke();
         }
     }
