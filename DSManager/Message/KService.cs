@@ -22,7 +22,7 @@ public	class KService
 		public uint TimeNow { get; set; }
 		private uint IdGenerater = 1000;
 		public readonly Dictionary<long, KChannel> idChannels = new Dictionary<long, KChannel>();
-		public readonly Dictionary<IPEndPoint, KChannel> EPChannels = new Dictionary<IPEndPoint, KChannel>();
+		public readonly Dictionary<long, KChannel> requestChannels = new Dictionary<long, KChannel>();
 		private UdpClient socket;
 		public KService(int port)//for server
 		{
@@ -116,23 +116,28 @@ public	class KService
 		}
 		private void HandleAccept(UdpReceiveResult udpReceiveResult)//server do this
 		{
-			if (EPChannels.ContainsKey(udpReceiveResult.RemoteEndPoint))
+			uint requestConn = BitConverter.ToUInt32(udpReceiveResult.Buffer, 4);
+			if (requestChannels.ContainsKey(requestConn))
 			{
+				if (requestChannels[requestConn].isConnected)
+				{
+					requestChannels.Remove(requestConn);
+					return;
+				}
 			}
 			else
 			{ 
-			    uint requestConn = BitConverter.ToUInt32(udpReceiveResult.Buffer, 4);
 				uint newid;
 				do {
 					newid = this.IdGenerater++;
 				}
 				while (idChannels.ContainsKey(newid));
 				KChannel channel = new KChannel(newid, requestConn,this.socket, udpReceiveResult.RemoteEndPoint,this);
-				EPChannels.Add(udpReceiveResult.RemoteEndPoint, channel);
+				requestChannels.Add(channel.requestConn, channel);
 				idChannels.Add(channel.Id, channel);
 				onAcceptAKchannel.Invoke(ref channel);
 			}
-			EPChannels[udpReceiveResult.RemoteEndPoint].HandleAccept();
+			requestChannels[requestConn].HandleAccept();
 		}
 		private void HandleConnect(UdpReceiveResult udpReceiveResult)//client do this
 		{
@@ -151,7 +156,9 @@ public	class KService
 		}
 		public KChannel CreateAConnectChannel(IPEndPoint remotserveripEndPoint)//client do this
 		{
-			KChannel channel = new KChannel(this.IdGenerater++, this.socket, remotserveripEndPoint);
+			uint id = (uint)RandomHelper.RandomNumber(100, int.MaxValue);
+			//id = IdGenerater++;
+			KChannel channel = new KChannel(id, this.socket, remotserveripEndPoint);
 			idChannels.Add(channel.requestConn, channel);
 			return channel;
 		}
@@ -195,7 +202,7 @@ public	class KService
                 {
                     while (true)
                     {
-                        await Task.Delay(10);
+                        await Task.Delay(1);
                         this.TimeNow = (uint)TimeHelper.ClientNowSeconds();
                         for (int i = 0; i < idChannels.Values.Count; i++)
                         {

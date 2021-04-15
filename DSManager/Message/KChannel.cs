@@ -20,7 +20,7 @@ namespace DSManager
         public uint Id { get; set; }
         public uint requestConn { get; set; }
         private UdpClient socket;//local socket
-        private bool isConnected;
+        public bool isConnected { get; private set; }
         private IPEndPoint remoteEndPoint;
 		private Kcp kcp;
 		private KService kService;
@@ -119,7 +119,6 @@ namespace DSManager
             {
                 if (remoteEndPoint.Port != urr.RemoteEndPoint.Port || remoteEndPoint.Address.ToString() != urr.RemoteEndPoint.Address.ToString())//here is in case wifi toorfrom 4g 
                 {
-                    kService.EPChannels.Remove(remoteEndPoint);
                     remoteEndPoint = urr.RemoteEndPoint;
                 }
             }
@@ -159,9 +158,14 @@ namespace DSManager
         void disconnect()
         {
             kService.idChannels.Remove(Id);
-            kService.EPChannels.Remove(remoteEndPoint);
+            KChannel ch;
+            kService.requestChannels.TryGetValue(requestConn, out ch);
+            if (ch == this)
+            { 
+                kService.requestChannels.Remove(requestConn);
+                Console.WriteLine("kService.requestChannels.Count :" + kService.requestChannels.Count);
+            }
             Console.WriteLine("kService.idChannels.Count :" + kService.idChannels.Count);
-            Console.WriteLine("kService.idChannels.Count :" + kService.EPChannels.Count);
             ondisconnect.Invoke();
         }
     }

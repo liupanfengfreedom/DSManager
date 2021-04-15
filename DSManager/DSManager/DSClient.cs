@@ -33,14 +33,15 @@ namespace DSManager
         public void Begin()
         {
             th= new Timerhandler((string s) => {
-                ASCIIEncoding asen = new ASCIIEncoding();
-                byte[] buffer = asen.GetBytes(s);
+                //ASCIIEncoding asen = new ASCIIEncoding();
+                UTF8Encoding utf8 = new UTF8Encoding();
+                byte[] buffer = utf8.GetBytes(s);
 
                 channel.Send(ref buffer);
 
                 Console.WriteLine(s);
 
-            }, ts, 1000, true);
+            }, ts, 100, true);
             Global.GetComponent<Timer>().Add(th);
         }
 

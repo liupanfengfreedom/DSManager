@@ -76,6 +76,7 @@
   <ItemGroup>
     <Compile Include="Base\ByteHelper.cs" />
     <Compile Include="Base\Global.cs" />
+    <Compile Include="Base\RandomHelper.cs" />
     <Compile Include="Base\TimeHelper.cs" />
     <Compile Include="Base\Timer.cs" />
     <Compile Include="DSManager\Launchserver.cs" />

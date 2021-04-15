@@ -69,8 +69,8 @@ namespace DSManager
     {
         static void Main(string[] args)
         {
-            //Global.AddComponent<ServertoDS>();
-            Global.AddComponent<DSClient>();
+            Global.AddComponent<ServertoDS>();
+            //Global.AddComponent<DSClient>();
             //Global.AddComponent<ct>();
             //Global.AddComponent<ct1>();
             while (true)
