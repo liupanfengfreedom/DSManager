@@ -46,7 +46,7 @@ namespace DSManager
     {
         Timerhandler th = new Timerhandler((string s) => {
             Console.WriteLine("k1 ct" + TimeHelper.Now());
-        }, "ct1 timer event", 2000, true);
+        }, "ct1 timer event", 1000, true);
         public virtual void Begin()
         {
             MessageManager.GetSingleton().AddMessagelistener(this, in KeyMap.k1, (ref string msg) => {
@@ -69,8 +69,8 @@ namespace DSManager
     {
         static void Main(string[] args)
         {
-            Global.AddComponent<ServertoDS>();
-            //Global.AddComponent<DSClient>();
+            //Global.AddComponent<ServertoDS>();
+            Global.AddComponent<DSClient>();
             //Global.AddComponent<ct>();
             //Global.AddComponent<ct1>();
             while (true)

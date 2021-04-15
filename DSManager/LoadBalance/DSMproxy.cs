@@ -1,4 +1,5 @@
-﻿using System;
+﻿#define RTT 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -21,10 +22,14 @@ namespace DSManager
             this.channel.onUserLevelReceivedCompleted += (ref byte[] buffer) =>
             {
                 var str = System.Text.Encoding.UTF8.GetString(buffer);
+#if RTT
                 //Console.WriteLine(str);
                 ASCIIEncoding asen = new ASCIIEncoding();
-                byte[] buffer1 = asen.GetBytes(str + "fromserver");
+                byte[] buffer1 = asen.GetBytes(str + "server");
                 send(ref buffer1);
+#else
+
+#endif
             };
         }
         public void send(ref byte[] buffer)
