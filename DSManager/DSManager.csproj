@@ -98,16 +98,22 @@
     <Compile Include="Base\Entity.cs" />
     <Compile Include="LoadBalance\DSMproxy.cs" />
     <Compile Include="LoadBalance\ServertoDS.cs" />
+    <Compile Include="Login\LoginServer.cs" />
+    <Compile Include="Login\Player.cs" />
     <Compile Include="LuaBase\luabase.cs" />
     <Compile Include="DSManager\DSManager.cs" />
+    <Compile Include="Match\MatchServer.cs" />
     <Compile Include="Message\KChannel.cs" />
     <Compile Include="Message\KeyMap.cs" />
     <Compile Include="Message\KService.cs" />
     <Compile Include="Message\MessageManager.cs" />
     <Compile Include="Message\Session.cs" />
+    <Compile Include="PlayerSimulation\PlayerSimulator.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DSManager\DSClient.cs" />
+    <Compile Include="utility\Encoding.cs" />
+    <Compile Include="utility\Logger.cs" />
     <Compile Include="utility\window_file_log.cs" />
   </ItemGroup>
   <ItemGroup>

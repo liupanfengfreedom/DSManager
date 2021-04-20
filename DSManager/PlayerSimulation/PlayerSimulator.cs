@@ -1,22 +1,20 @@
-﻿//#define RTT 
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 using DSManager.LuaBase;
 using NLua;
-
 namespace DSManager
 {
-
-    class DSClient : luabase, Entity
+    class PlayerSimulator : luabase, Entity
     {
         Timerhandler th;
         KChannel channel;
-        string ts="";
-        public DSClient() : base("DSClient")
+        string ts = "";
+        public PlayerSimulator() : base("PlayerSimulator")
         {
             ts = GetValueFromLua<string>("testmessage");
             LuaTable remoteserver = GetValueFromLua<LuaTable>("remoteserver");
@@ -41,13 +39,17 @@ namespace DSManager
                 window_file_log.Log(rr.ToString());
                 //Console.WriteLine(str);
 #else
-                switch ((CMD)buffer[0])
+                switch ((CMDPlayer)buffer[0])
                 {
-                    case CMD.WANIP:
+                    case CMDPlayer.SINGUP:
+                        Logger.log("Sing up ok");
                         break;
-                    case CMD.NEW_DS:
+                    case CMDPlayer.LOGIN:
+                        Logger.log("log in ok");
+                        th.kill = true;
                         break;
-                    case CMD.KILL_DS:
+                    case CMDPlayer.MATCHREQUEST:
+                        Logger.log("match ok");
                         break;
                     default:
                         break;
@@ -56,38 +58,38 @@ namespace DSManager
 
             };
         }
-
         public void Begin()
         {
-            th= new Timerhandler((string s) => {
-#if RTT
-                string str = TimeHelper.Now().ToString();
-                ////////////////////////////////////////////////////////////
-                //ASCIIEncoding asen = new ASCIIEncoding();
-                UTF8Encoding utf8 = new UTF8Encoding();
-                byte[] buffer = utf8.GetBytes(str);
-                channel.Send(ref buffer);
-                //Console.WriteLine(s);
-                //window_file_log.Log(ts);
-#else
-
-#endif
-            }, ts, 100, true);
-            Global.GetComponent<Timer>().Add(th);
+            Task.Run(async () =>
+            {
+                try
+                {
+                    while (!channel.isConnected)
+                    {
+                        await Task.Delay(100);
+                    }
+                    send((byte)CMDPlayer.LOGIN, Encoding.getbyte(ts));
+                }
+                catch (Exception e)
+                {
+                    Logger.log(e.ToString());
+                }
+            });
         }
-        public void send(byte command, ref byte[] buffer)
+
+        public void End()
+        {
+        }
+
+        public void Update(uint delta)
+        {
+        }
+        public void send(byte command, byte[] buffer)
         {
             byte[] t = new byte[buffer.Length + 1];
             t[0] = command;
             Array.Copy(buffer, 0, t, 1, buffer.Length);
             channel.Send(ref t);
-        }
-        public void End()
-        {
-            
-        }
-        public void Update(uint delta)
-        {
         }
     }
 }

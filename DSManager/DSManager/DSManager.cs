@@ -10,11 +10,11 @@ namespace DSManager
 
     class DSManager
     {
-        List<Process> dss;
+        Dictionary<int,dsinfor> dss;
         Launchserver LS;
         static DSManager dsm=null;
         public DSManager() {
-            dss = new List<Process>();
+            dss = new Dictionary<int, dsinfor>();
             LS = new Launchserver();
         }
          ~DSManager() {
@@ -28,29 +28,29 @@ namespace DSManager
             }
             return dsm;
         }
-        public Process LaunchADS()
+        public dsinfor LaunchADS()
         {
-            Process ds = LS.CreateADSInstance();
+            dsinfor ds = LS.CreateADSInstance();
             if (ds == null)
             {
 
             }
             else {
-                dss.Add(ds);
-                Console.WriteLine("d.ProcessName: " + ds.ProcessName);
-                Console.WriteLine("d.Id: " + ds.Id);
-                ds.Disposed += (object sender, EventArgs e) =>
+                dss.Add(ds.port,ds);
+                //Console.WriteLine("d.ProcessName: " + ds.ProcessName);
+                //Console.WriteLine("d.Id: " + ds.Id);
+                ds.process.Disposed += (object sender, EventArgs e) =>
                 {
-                    Console.Write("Disposed");
-                    window_file_log.Log("Disposed" + ds.Id);
+                    //Console.Write("Disposed");
+                    window_file_log.Log("Disposed" + ds.process.Id);
                 };
-                ds.Exited += (object sender, EventArgs e) =>
+                ds.process.Exited += (object sender, EventArgs e) =>
                 {
-                    Console.Write("exit");
-                    window_file_log.Log("exit" + ds.Id);
+                    //Console.Write("exit");
+                    window_file_log.Log("exit" + ds.process.Id);
                 };
             }
-            window_file_log.Log("create" + ds.Id);
+            window_file_log.Log("create" + ds.process.Id);
             return ds;
         }
         public void killds(Process ps)
@@ -64,9 +64,9 @@ namespace DSManager
         {
             foreach (var d in dss)
             {
-                if (d != null && !d.HasExited)
+                if (d.Value != null && !d.Value.process.HasExited)
                 {
-                    KillProcessAndChildren(d.Id);
+                    KillProcessAndChildren(d.Value.process.Id);
                 }
             }
             dss.Clear();

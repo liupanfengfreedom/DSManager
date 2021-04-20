@@ -10,6 +10,16 @@ using System.Net;
 using System.Net.NetworkInformation;
 namespace DSManager
 {
+    class dsinfor
+    {
+        public Process process;
+        public int port {get; private set;}
+        public dsinfor(Process process, int port)
+        {
+            this.process = process;
+            this.port = port;
+        }
+    }
     class Launchserver : luabase
     {
         private static int preport = 0;
@@ -23,7 +33,7 @@ namespace DSManager
             wanip = (string)dsinfor["wanip"];
             dspath = (string)dsinfor["dspath"];
         }
-        public Process CreateADSInstance()
+        public dsinfor CreateADSInstance()
         {
             int port = GetOneAvailablePort();
             string Arguments = string.Format(" -log=ue.log -port={0}", port);
@@ -39,7 +49,7 @@ namespace DSManager
                     myProcess.Start();
                 }
                 window_file_log.Log("launch server at port: " + port);
-                return myProcess;
+                return new dsinfor(myProcess,port);
             }
             catch (Exception e)
             {

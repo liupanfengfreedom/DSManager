@@ -13,7 +13,7 @@ namespace DSManager
   public delegate void OnUserLevelReceivedCompleted(ref byte[] buffer);
   public  class KChannel
     {
-        const int PINGPERIOD = 1;//s
+        const int PINGPERIOD = 60*60;//s
         public OnUserLevelReceivedCompleted onUserLevelReceivedCompleted;
         public Action ondisconnect;
         Timerhandler th;
@@ -53,7 +53,7 @@ namespace DSManager
                 }
                 //Console.WriteLine("check ping");
 
-            }, "", PINGPERIOD * 1000 *10, true);
+            }, "", PINGPERIOD * 1000 *10, true);//unit of timer is ms
             Global.GetComponent<Timer>().Add(th);
         }
         public KChannel(uint requestConn, UdpClient socket, IPEndPoint remoteEndPoint)//client do this
@@ -71,7 +71,8 @@ namespace DSManager
         }
         ~KChannel()
         {
-            Console.WriteLine("~KChannel()");
+            //Console.WriteLine("~KChannel()");
+            window_file_log.Log("~KChannel()");
         }
         public void HandleAccept()//server do this
         {
@@ -103,7 +104,8 @@ namespace DSManager
                 cacheBytes.WriteTo(4, this.Id);
                 //Log.Debug($"client connect: {this.Conn}");
                 this.socket.Send(cacheBytes, 8, this.remoteEndPoint);
-                Console.WriteLine("ping");
+                //Console.WriteLine("ping");
+                window_file_log.Log("ping");
             }, "", PINGPERIOD * 1000, true);
             Global.GetComponent<Timer>().Add(th);
         }
@@ -163,9 +165,11 @@ namespace DSManager
             if (ch == this)
             { 
                 kService.requestChannels.Remove(requestConn);
-                Console.WriteLine("kService.requestChannels.Count :" + kService.requestChannels.Count);
+                //Console.WriteLine("kService.requestChannels.Count :" + kService.requestChannels.Count);
+                window_file_log.Log("kService.requestChannels.Count :" + kService.requestChannels.Count);
             }
-            Console.WriteLine("kService.idChannels.Count :" + kService.idChannels.Count);
+            //Console.WriteLine("kService.idChannels.Count :" + kService.idChannels.Count);
+            window_file_log.Log("kService.requestChannels.Count :" + kService.requestChannels.Count);
             ondisconnect.Invoke();
         }
     }

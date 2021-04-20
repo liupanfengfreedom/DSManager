@@ -70,8 +70,9 @@ namespace DSManager
         static void Main(string[] args)
         {
             //Global.AddComponent<ServertoDS>();
-            Global.AddComponent<DSClient>();
-            //Global.AddComponent<ct>();
+            //Global.AddComponent<DSClient>();
+           // Global.AddComponent<PlayerSimulator>();
+            Global.AddComponent<LoginServer>();
             //Global.AddComponent<ct1>();
             while (true)
             {

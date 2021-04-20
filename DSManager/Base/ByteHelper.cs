@@ -43,25 +43,25 @@ namespace DSManager
 			return stringBuilder.ToString();
 		}
 
-		public static string ToStr(this byte[] bytes)
-		{
-			return Encoding.Default.GetString(bytes);
-		}
+		//public static string ToStr(this byte[] bytes)
+		//{
+		//	return Encoding.Default.GetString(bytes);
+		//}
 
-		public static string ToStr(this byte[] bytes, int index, int count)
-		{
-			return Encoding.Default.GetString(bytes, index, count);
-		}
+		//public static string ToStr(this byte[] bytes, int index, int count)
+		//{
+		//	return Encoding.Default.GetString(bytes, index, count);
+		//}
 
-		public static string Utf8ToStr(this byte[] bytes)
-		{
-			return Encoding.UTF8.GetString(bytes);
-		}
+		//public static string Utf8ToStr(this byte[] bytes)
+		//{
+		//	return Encoding.UTF8.GetString(bytes);
+		//}
 
-		public static string Utf8ToStr(this byte[] bytes, int index, int count)
-		{
-			return Encoding.UTF8.GetString(bytes, index, count);
-		}
+		//public static string Utf8ToStr(this byte[] bytes, int index, int count)
+		//{
+		//	return Encoding.UTF8.GetString(bytes, index, count);
+		//}
 
 		public static void WriteTo(this byte[] bytes, int offset, uint num)
 		{
