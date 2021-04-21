@@ -11,6 +11,76 @@ using NLua;
 
 namespace DSManager
 {
+    class ctest : Entity
+    {
+        ConcurrentDictionary<int, string> d1 = new ConcurrentDictionary<int, string>();
+        public virtual void Begin()
+        {
+            Task.Run(async () =>
+            {
+                try
+                {
+                    while (true)
+                    {
+                        int r = RandomHelper.RandomNumber(0, 100);
+                        if (d1.ContainsKey(r))
+                        {
+                            continue;
+                        }
+                        d1.TryAdd(r,r.ToString());
+                        Thread.Sleep(10);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Logger.log(e.ToString());
+                }
+            });
+            Task.Run(async () =>
+            {
+                try
+                {
+                    while (true)
+                    {
+                        int r = RandomHelper.RandomNumber(0, 100);
+                        string v;
+                        d1.TryRemove(r,out v);
+                        Thread.Sleep(10);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Logger.log(e.ToString());
+                }
+            });
+            Task.Run(async () =>
+            {
+                try
+                {
+                    while (true)
+                    {
+;                       foreach (var v in d1)
+                        {
+                            Logger.log(v.Value);
+                        }
+                        Thread.Sleep(10);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Logger.log(e.ToString());
+                }
+            });
+        }
+        public virtual void Update(uint delta)
+        {
+
+        }
+        public virtual void End()
+        {
+
+        }
+    }
     class ct:Entity
     {
         int counter = 0;
@@ -71,9 +141,10 @@ namespace DSManager
         {
             //Global.AddComponent<ServertoDS>();
             //Global.AddComponent<DSClient>();
-           // Global.AddComponent<PlayerSimulator>();
-            Global.AddComponent<LoginServer>();
+            //Global.AddComponent<PlayerSimulator>();
+            //Global.AddComponent<LoginServer>();
             //Global.AddComponent<ct1>();
+            Global.AddComponent<ctest>();
             while (true)
             {
                 try

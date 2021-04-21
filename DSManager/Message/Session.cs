@@ -9,35 +9,37 @@ namespace DSManager
 {
     class Session
     {
-        KService kService;
-        static Session session;
+        KService kService_c;
+        KService kService_s;
+        static Session session_c;
+        static Session session_s;
         public Session()//client
         {
-            kService = new KService();
+            kService_c = new KService();
         }
         public Session(int port)//server
         {
-            kService = new KService(port);
+            kService_s = new KService(port);
         }
         public static Session get()//client
         {
-            if (session == null)
+            if (session_c == null)
             {
-                session = new Session();
+                session_c = new Session();
             }
-            return session;
+            return session_c;
         }
         public static KService get(int port)//server
         {
-            if (session == null)
+            if (session_s == null)
             {
-                session = new Session(port);
+                session_s = new Session(port);
             }
-            return session.kService;
+            return session_s.kService_s;
         }
         public  KChannel GetChannel(IPEndPoint remotserveripEndPoint)
         {
-            return kService.CreateAConnectChannel(remotserveripEndPoint);
+            return kService_c.CreateAConnectChannel(remotserveripEndPoint);
         }
 
     }

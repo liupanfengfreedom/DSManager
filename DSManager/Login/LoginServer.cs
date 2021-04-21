@@ -5,13 +5,13 @@ using System.Text;
 using System.Threading.Tasks;
 using NLua;
 using DSManager.LuaBase;
+using System.Collections.Concurrent;
 
 namespace DSManager
 {
-
     class LoginServer : luabase, Entity
     {
-        public List<Player> Players = new List<Player>();
+        public ConcurrentDictionary<int, Player> Players = new ConcurrentDictionary<int, Player>();
         public LoginServer() : base("Loginserver")
         {
             LuaTable server = GetValueFromLua<LuaTable>("server");
@@ -20,7 +20,12 @@ namespace DSManager
             int port = (int)(Int64)serveraddr["port"];
             KService service = Session.get(port);
             service.onAcceptAKchannel += (ref KChannel channel) => {
-                Players.Add(new Player(channel, this));
+                int id = 0;
+                do
+                {
+                    id = RandomHelper.RandomNumber(int.MinValue, int.MaxValue);
+                } while (Players.ContainsKey(id));
+                Players.TryAdd(id,new Player(id,channel, this));
                 Logger.log("onaccept");
             };
         }

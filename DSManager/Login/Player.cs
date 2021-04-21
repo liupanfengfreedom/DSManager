@@ -16,14 +16,17 @@ namespace DSManager
     {
         KChannel channel;
         LoginServer loginserver;
-        public Player(KChannel channel, LoginServer loginserver)
+        int id;
+        public string playerinfor { get;private set;}
+        public Player(int id,KChannel channel, LoginServer loginserver)
         {
+            this.id = id;
             this.channel = channel;
             this.loginserver = loginserver;
             this.channel.ondisconnect += () => {
-                this.loginserver.Players.Remove(this);
-                // Console.WriteLine("ondisconnect");
-                window_file_log.Log("ondisconnect");
+                Player v;
+                this.loginserver.Players.TryRemove(id,out v);
+                Logger.log("ondisconnect");
             };
             this.channel.onUserLevelReceivedCompleted += (ref byte[] buffer) =>
             {
@@ -44,7 +47,13 @@ namespace DSManager
                     case CMDPlayer.LOGIN:
                         Logger.log("log in ");
                         Logger.log(str);
+////////////////////////////////////////////////////////////////////
                         //read data base
+                        //simulate playerinfor
+                        int simulateddata = RandomHelper.RandomNumber(1,1000);
+                        playerinfor = simulateddata.ToString();
+////////////////////////////////////////////////////////////////////////////////////
+                        //ack
                         send((byte)CMDPlayer.LOGIN, Encoding.getbyte("hi"));
                         break;
                     case CMDPlayer.MATCHREQUEST:

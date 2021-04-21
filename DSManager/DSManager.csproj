@@ -102,6 +102,7 @@
     <Compile Include="Login\Player.cs" />
     <Compile Include="LuaBase\luabase.cs" />
     <Compile Include="DSManager\DSManager.cs" />
+    <Compile Include="Match\LoginServerProxy.cs" />
     <Compile Include="Match\MatchServer.cs" />
     <Compile Include="Message\KChannel.cs" />
     <Compile Include="Message\KeyMap.cs" />

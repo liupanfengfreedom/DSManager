@@ -10,7 +10,6 @@ using NLua;
 
 namespace DSManager
 {
-
     class DSClient : luabase, Entity
     {
         Timerhandler th;
