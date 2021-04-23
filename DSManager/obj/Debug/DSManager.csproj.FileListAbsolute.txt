@@ -54,4 +54,9 @@ D:\vsprojects\DSManagerv1\DSManager\obj\Debug\DSManager.csproj.CoreCompileInputs
 D:\vsprojects\DSManagerv1\DSManager\obj\Debug\DSManager.csproj.CopyComplete
 D:\vsprojects\DSManagerv1\DSManager\obj\Debug\DSManager.exe
 D:\vsprojects\DSManagerv1\DSManager\obj\Debug\DSManager.pdb
-D:\vsprojects\DSManager\DSManager\obj\Debug\DSManager.csprojAssemblyReference.cache
+D:\vsprojects\DSManager\DSManager\bin\Debug\protobuf-net.Core.dll
+D:\vsprojects\DSManager\DSManager\bin\Debug\protobuf-net.dll
+D:\vsprojects\DSManager\DSManager\bin\Debug\System.Collections.Immutable.dll
+D:\vsprojects\DSManager\DSManager\bin\Debug\protobuf-net.xml
+D:\vsprojects\DSManager\DSManager\bin\Debug\protobuf-net.Core.xml
+D:\vsprojects\DSManager\DSManager\bin\Debug\System.Collections.Immutable.xml

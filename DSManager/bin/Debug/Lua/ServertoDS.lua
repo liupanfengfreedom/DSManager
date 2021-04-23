@@ -1,6 +1,6 @@
 server={--Load-balancing server self
     nettype = "kcp",
     kcp={
-        port = 7000,
+        port = 7001,
     }
 }

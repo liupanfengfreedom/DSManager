@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
@@ -8,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using DSManager.LuaBase;
 using NLua;
+using ProtoBuf;
 
 namespace DSManager
 {
@@ -28,7 +30,7 @@ namespace DSManager
                             continue;
                         }
                         d1.TryAdd(r,r.ToString());
-                        Thread.Sleep(10);
+                        Thread.Sleep(1);
                     }
                 }
                 catch (Exception e)
@@ -44,8 +46,12 @@ namespace DSManager
                     {
                         int r = RandomHelper.RandomNumber(0, 100);
                         string v;
-                        d1.TryRemove(r,out v);
-                        Thread.Sleep(10);
+                        bool b = d1.TryRemove(r,out v);
+                        if (b)
+                        { 
+                            Logger.log("remove ok------------------");
+                        }
+                        Thread.Sleep(1);
                     }
                 }
                 catch (Exception e)
@@ -62,8 +68,8 @@ namespace DSManager
 ;                       foreach (var v in d1)
                         {
                             Logger.log(v.Value);
+                            Thread.Sleep(10);
                         }
-                        Thread.Sleep(10);
                     }
                 }
                 catch (Exception e)
@@ -135,16 +141,35 @@ namespace DSManager
             MessageManager.GetSingleton().RemoveMessagelistener(this);
         }
     }
+    [ProtoContract]
+    class Person
+    {
+        [ProtoMember(1)]
+        public int Id { get; set; }
+        [ProtoMember(2)]
+        public string Name { get; set; }
+        [ProtoMember(3)]
+        public Address Address { get; set; }
+    }
+    [ProtoContract]
+    class Address
+    {
+        [ProtoMember(1)]
+        public string Line1 { get; set; }
+        [ProtoMember(2)]
+        public string Line2 { get; set; }
+    }
     class Program
     {
         static void Main(string[] args)
         {
             //Global.AddComponent<ServertoDS>();
             //Global.AddComponent<DSClient>();
-            //Global.AddComponent<PlayerSimulator>();
-            //Global.AddComponent<LoginServer>();
+            // Global.AddComponent<PlayerSimulator>();
+            Global.AddComponent<LoginServer>();
+            //Global.AddComponent<MatchServer>();
             //Global.AddComponent<ct1>();
-            Global.AddComponent<ctest>();
+            // Global.AddComponent<ctest>();
             while (true)
             {
                 try

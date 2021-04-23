@@ -6,11 +6,13 @@ using System.Threading.Tasks;
 using NLua;
 using DSManager.LuaBase;
 using System.Collections.Concurrent;
+using System.Net;
 
 namespace DSManager
 {
     class LoginServer : luabase, Entity
     {
+        KChannel channel_matchserver;
         public ConcurrentDictionary<int, Player> Players = new ConcurrentDictionary<int, Player>();
         public LoginServer() : base("Loginserver")
         {
@@ -28,6 +30,25 @@ namespace DSManager
                 Players.TryAdd(id,new Player(id,channel, this));
                 Logger.log("onaccept");
             };
+////////////////////////////////////////////////////////////////////////////////////////
+            LuaTable remoteserver = GetValueFromLua<LuaTable>("remoteserver");
+            nettype = (string)remoteserver["nettype"];
+            serveraddr = (LuaTable)remoteserver[nettype];
+            string serverip = (string)serveraddr["serverip"];
+            port = (int)(Int64)serveraddr["port"];
+            IPAddress ipAd = IPAddress.Parse(serverip);//local ip address  "172.16.5.188"
+            channel_matchserver = Session.get().GetChannel(new IPEndPoint(ipAd, port));
+            channel_matchserver.onUserLevelReceivedCompleted += (ref byte[] buffer) => {
+
+
+            };
+        }
+        public void sendtomatchserver(byte command, byte[] buffer)
+        {
+            byte[] t = new byte[buffer.Length + 1];
+            t[0] = command;
+            Array.Copy(buffer, 0, t, 1, buffer.Length);
+            channel_matchserver.Send(ref t);
         }
         void Entity.Begin()
         {

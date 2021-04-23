@@ -1,4 +1,7 @@
-﻿using System;
+﻿using ProtoBuf;
+using System;
+using System.IO;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -58,6 +61,14 @@ namespace DSManager
                         break;
                     case CMDPlayer.MATCHREQUEST:
                         Logger.log("match ");
+                        var playerinfor_ = new playerinfor {
+                            playerid = id,
+                            SimulateInforStr = playerinfor,
+                            SimulateInforInt = 1234
+                        };
+                        MemoryStream ms = new MemoryStream();
+                        Serializer.Serialize(ms, playerinfor_);
+                        loginserver.sendtomatchserver((byte)CMDMatchServer.MATCHREQUEST, ms.ToArray());
                         break;
                     default:
                         break;

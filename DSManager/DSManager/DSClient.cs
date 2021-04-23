@@ -74,7 +74,7 @@ namespace DSManager
             }, ts, 100, true);
             Global.GetComponent<Timer>().Add(th);
         }
-        public void send(byte command, ref byte[] buffer)
+        public void send(byte command,byte[] buffer)
         {
             byte[] t = new byte[buffer.Length + 1];
             t[0] = command;

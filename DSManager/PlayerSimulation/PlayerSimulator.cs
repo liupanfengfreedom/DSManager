@@ -46,7 +46,6 @@ namespace DSManager
                         break;
                     case CMDPlayer.LOGIN:
                         Logger.log("log in ok");
-                        th.kill = true;
                         break;
                     case CMDPlayer.MATCHREQUEST:
                         Logger.log("match ok");
@@ -68,7 +67,11 @@ namespace DSManager
                     {
                         await Task.Delay(100);
                     }
+                    ts += RandomHelper.RandomNumber(0,int.MaxValue);
                     send((byte)CMDPlayer.LOGIN, Encoding.getbyte(ts));
+                    await Task.Delay(2000);
+                    send((byte)CMDPlayer.MATCHREQUEST, Encoding.getbyte(""));
+
                 }
                 catch (Exception e)
                 {

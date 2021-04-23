@@ -5,13 +5,20 @@ using System.Text;
 using System.Threading.Tasks;
 using NLua;
 using DSManager.LuaBase;
+using System.Collections.Concurrent;
 
 namespace DSManager
 {
+    enum CMDMatchServer
+    {
+        MATCHREQUEST,
+    }
     class MatchServer : luabase, Entity
     {
         public List<LoginServerProxy> LoginServers = new List<LoginServerProxy>();
-        public MatchServer() : base("Loginserver")
+        public ConcurrentDictionary<int, playerinfor> Players = new ConcurrentDictionary<int, playerinfor>();
+
+        public MatchServer() : base("MatchServer")
         {
             LuaTable server = GetValueFromLua<LuaTable>("server");
             string nettype = (string)server["nettype"];
@@ -19,8 +26,8 @@ namespace DSManager
             int port = (int)(Int64)serveraddr["port"];
             KService service = Session.get(port);
             service.onAcceptAKchannel += (ref KChannel channel) => {
-             
-                Logger.log("");
+                LoginServers.Add(new LoginServerProxy(channel, this));
+                Logger.log("loinginserver in");
             };
         }
         void Entity.Begin()
