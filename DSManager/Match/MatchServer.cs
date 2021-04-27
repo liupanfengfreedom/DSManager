@@ -12,11 +12,12 @@ namespace DSManager
     enum CMDMatchServer
     {
         MATCHREQUEST,
+        PLAYEREXITQUEST,
     }
     class MatchServer : luabase, Entity
     {
         public List<LoginServerProxy> LoginServers = new List<LoginServerProxy>();
-        public ConcurrentDictionary<int, playerinfor> Players = new ConcurrentDictionary<int, playerinfor>();
+        ConcurrentDictionary<int, playerinfor> matchpool = new ConcurrentDictionary<int, playerinfor>();
 
         public MatchServer() : base("MatchServer")
         {
@@ -29,6 +30,43 @@ namespace DSManager
                 LoginServers.Add(new LoginServerProxy(channel, this));
                 Logger.log("loinginserver in");
             };
+            Task.Run(async () =>
+            {
+                try
+                {
+                    while (true)
+                    {
+                        await Task.Delay(1000);
+                        Logger.log(matchpool.Count+ " :matchpool size");
+                    }
+                }
+                catch (Exception e)
+                {
+                    Logger.log(e.ToString());
+                }
+            });
+
+        }
+        public void addtomatchpool(playerinfor player)
+        {
+            bool b = matchpool.TryAdd(player.playerid,player);
+            if (b)
+            { }
+            else
+            { 
+                Logger.log("the same key already in matchpool");
+            }
+        }
+        public void removefrompool(int id)
+        {
+            playerinfor player;
+            bool b = matchpool.TryRemove(id,out player);
+            if (b)
+            { }
+            else
+            {
+                Logger.log("remove key failed from matchpool");
+            }
         }
         void Entity.Begin()
         {

@@ -13,7 +13,7 @@ namespace DSManager
   public delegate void OnUserLevelReceivedCompleted(ref byte[] buffer);
   public  class KChannel
     {
-        const int PINGPERIOD = 60*60;//s
+        const int PINGPERIOD = 1;//60*60;//s
         public OnUserLevelReceivedCompleted onUserLevelReceivedCompleted;
         public Action ondisconnect;
         Timerhandler th;

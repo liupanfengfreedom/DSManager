@@ -212,8 +212,7 @@ public	class KService
                 }
                 catch (Exception e)
                 {
-                    //Console.WriteLine(e);
-                    window_file_log.Log(e.ToString());
+					Logger.log(e.ToString());
 				}
 			});
         }

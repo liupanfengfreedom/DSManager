@@ -29,7 +29,9 @@ namespace DSManager
             this.channel.ondisconnect += () => {
                 Player v;
                 this.loginserver.Players.TryRemove(id,out v);
-                Logger.log("ondisconnect");
+                loginserver.sendtomatchserver((byte)CMDMatchServer.PLAYEREXITQUEST, BitConverter.GetBytes(id));
+
+                Logger.log(id + " :ondisconnect");
             };
             this.channel.onUserLevelReceivedCompleted += (ref byte[] buffer) =>
             {
@@ -61,6 +63,7 @@ namespace DSManager
                         break;
                     case CMDPlayer.MATCHREQUEST:
                         Logger.log("match ");
+                        Logger.log(playerinfor);
                         var playerinfor_ = new playerinfor {
                             playerid = id,
                             SimulateInforStr = playerinfor,

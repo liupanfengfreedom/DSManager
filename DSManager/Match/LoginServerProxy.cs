@@ -35,14 +35,21 @@ namespace DSManager
                 switch ((CMDMatchServer)buffer[0])
                 {
                     case CMDMatchServer.MATCHREQUEST:
-                        Logger.log("matchrequest");
                         playerinfor pi = new playerinfor();
                         MemoryStream ms = new MemoryStream();
                         ms.Write(buffer,1,buffer.Length-1);
                         ms.Position = 0;
                         pi = Serializer.Deserialize<playerinfor>(ms);
                         Logger.log(pi.SimulateInforStr);
-                        //matchserver.Players.TryAdd(pi.playerid, pi);
+                        matchserver.addtomatchpool(pi);
+                        Logger.log(pi.playerid+" :matchrequest");
+
+                        break;
+                    case CMDMatchServer.PLAYEREXITQUEST:
+                        int id = BitConverter.ToInt32(buffer, 1);
+                        matchserver.removefrompool(id);
+                        Logger.log(id+" :playerexitquest");
+
                         break;
                     default:
                         break;
