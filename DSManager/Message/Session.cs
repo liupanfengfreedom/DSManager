@@ -11,8 +11,7 @@ namespace DSManager
     {
         KService kService_c;
         KService kService_s;
-        static Session session_c;
-        static Session session_s;
+        static readonly Dictionary<int,Session> session_s=new Dictionary<int, Session>();
         public Session()//client
         {
             kService_c = new KService();
@@ -21,21 +20,23 @@ namespace DSManager
         {
             kService_s = new KService(port);
         }
-        public static Session get()//client
+        public static Session getnew()//client
         {
-            if (session_c == null)
-            {
-                session_c = new Session();
-            }
-            return session_c;
+            return new Session();
         }
-        public static KService get(int port)//server
+        public static KService createorget(int port)//server
         {
-            if (session_s == null)
+            Session session;
+            if (session_s.ContainsKey(port))
             {
-                session_s = new Session(port);
+                session =  session_s[port];
             }
-            return session_s.kService_s;
+            else
+            {
+                session = new Session(port);
+                session_s.Add(port, session);
+            }
+            return session.kService_s;
         }
         public  KChannel GetChannel(IPEndPoint remotserveripEndPoint)
         {

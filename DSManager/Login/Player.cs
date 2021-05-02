@@ -52,11 +52,16 @@ namespace DSManager
                     case CMDPlayer.LOGIN:
                         Logger.log("log in ");
                         Logger.log(str);
-////////////////////////////////////////////////////////////////////
+                        ////////////////////////////////////////////////////////////////////
                         //read data base
                         //simulate playerinfor
-                        int simulateddata = RandomHelper.RandomNumber(1,1000);
-                        playerinfor = simulateddata.ToString();
+                        int simulateddata;
+                        for (int i = 0; i < 2; i++)
+                        {
+                            simulateddata = RandomHelper.RandomNumber(1, 3);
+                            playerinfor += simulateddata.ToString()+"???";
+                        }
+
 ////////////////////////////////////////////////////////////////////////////////////
                         //ack
                         send((byte)CMDPlayer.LOGIN, Encoding.getbyte("hi"));
@@ -84,7 +89,7 @@ namespace DSManager
             byte[] t = new byte[buffer.Length + 1];
             t[0] = command;
             Array.Copy(buffer, 0, t, 1, buffer.Length);
-            channel.Send(ref t);
+            channel.Send(t);
         }
     }
 }

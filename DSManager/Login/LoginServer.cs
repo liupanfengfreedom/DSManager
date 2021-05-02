@@ -20,7 +20,7 @@ namespace DSManager
             string nettype = (string)server["nettype"];
             LuaTable serveraddr = (LuaTable)server[nettype];
             int port = (int)(Int64)serveraddr["port"];
-            KService service = Session.get(port);
+            KService service = Session.createorget(port);
             service.onAcceptAKchannel += (ref KChannel channel) => {
                 int id = 0;
                 do
@@ -37,7 +37,7 @@ namespace DSManager
             string serverip = (string)serveraddr["serverip"];
             port = (int)(Int64)serveraddr["port"];
             IPAddress ipAd = IPAddress.Parse(serverip);//local ip address  "172.16.5.188"
-            channel_matchserver = Session.get().GetChannel(new IPEndPoint(ipAd, port));
+            channel_matchserver = Session.getnew().GetChannel(new IPEndPoint(ipAd, port));
             channel_matchserver.onUserLevelReceivedCompleted += (ref byte[] buffer) => {
 
 
@@ -48,7 +48,7 @@ namespace DSManager
             byte[] t = new byte[buffer.Length + 1];
             t[0] = command;
             Array.Copy(buffer, 0, t, 1, buffer.Length);
-            channel_matchserver.Send(ref t);
+            channel_matchserver.Send(t);
         }
         void Entity.Begin()
         {

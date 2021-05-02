@@ -22,8 +22,8 @@ namespace DSManager
             this.servertods = servertods;
             this.channel.ondisconnect += () => { 
                 this.servertods.DSMchannel.Remove(this);
-               // Console.WriteLine("ondisconnect");
-                window_file_log.Log("ondisconnect");
+                // Console.WriteLine("ondisconnect");
+                Logger.log("ondisconnect");
 
             };
             this.channel.onUserLevelReceivedCompleted += (ref byte[] buffer) =>
@@ -54,7 +54,7 @@ namespace DSManager
             byte[] t = new byte[buffer.Length+1];
             t[0] = command;
             Array.Copy(buffer, 0, t, 1, buffer.Length);
-            channel.Send(ref t);
+            channel.Send(t);
         }
 
     }

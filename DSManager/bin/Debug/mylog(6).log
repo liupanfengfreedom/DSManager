@@ -1,42 +1,7 @@
 log begin
 ..............
-4/4/2021 7:52:19 PM : launch server at port: 7000
-4/4/2021 7:52:19 PM : create28152
-4/4/2021 7:52:21 PM : launch server at port: 7001
-4/4/2021 7:52:21 PM : create3692
-4/4/2021 7:52:23 PM : launch server at port: 7002
-4/4/2021 7:52:23 PM : create3316
-4/4/2021 7:52:25 PM : launch server at port: 7003
-4/4/2021 7:52:25 PM : create28484
-4/4/2021 7:52:27 PM : launch server at port: 7004
-4/4/2021 7:52:27 PM : create33012
-4/4/2021 7:52:29 PM : launch server at port: 7005
-4/4/2021 7:52:29 PM : create21992
-4/4/2021 7:52:31 PM : launch server at port: 7006
-4/4/2021 7:52:31 PM : create32528
-4/4/2021 7:52:33 PM : launch server at port: 7007
-4/4/2021 7:52:33 PM : create33440
-4/4/2021 7:52:36 PM : launch server at port: 7008
-4/4/2021 7:52:36 PM : create13280
-4/4/2021 7:52:38 PM : launch server at port: 7009
-4/4/2021 7:52:38 PM : create19728
-4/4/2021 7:52:40 PM : launch server at port: 7010
-4/4/2021 7:52:40 PM : create27616
-4/4/2021 7:52:42 PM : launch server at port: 7011
-4/4/2021 7:52:42 PM : create21644
-4/4/2021 7:52:44 PM : launch server at port: 7012
-4/4/2021 7:52:44 PM : create24424
-4/4/2021 7:52:46 PM : launch server at port: 7013
-4/4/2021 7:52:46 PM : create31948
-4/4/2021 7:52:48 PM : launch server at port: 7014
-4/4/2021 7:52:48 PM : create21604
-4/4/2021 7:52:50 PM : launch server at port: 7015
-4/4/2021 7:52:50 PM : create30400
-4/4/2021 7:52:52 PM : launch server at port: 7016
-4/4/2021 7:52:52 PM : create32780
-4/4/2021 7:52:54 PM : launch server at port: 7017
-4/4/2021 7:52:54 PM : create13236
-4/4/2021 7:52:56 PM : launch server at port: 7018
-4/4/2021 7:52:56 PM : create29028
-4/4/2021 7:52:58 PM : launch server at port: 7019
-4/4/2021 7:52:58 PM : create31884
+5/2/2021 8:21:52 PM : ping
+5/2/2021 8:21:53 PM : ping
+5/2/2021 8:21:55 PM : ping
+5/2/2021 8:21:56 PM : ping
+5/2/2021 8:21:57 PM : ping

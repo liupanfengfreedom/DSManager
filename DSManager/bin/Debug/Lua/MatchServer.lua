@@ -7,7 +7,7 @@ server={--match server self
 remoteserver={--loadbalance server
     nettype = "kcp",
     kcp={
-        port = 7001,
+        port = 7002,
         serverip = "192.168.31.252",
     }
 }

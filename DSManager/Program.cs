@@ -93,25 +93,30 @@ namespace DSManager
         Timerhandler th;
         public virtual void Begin()
         {
-            int x = 9;
-            th = new Timerhandler((string s) => {
-                Console.WriteLine("k1 ct" + s);
-                Console.WriteLine("x " + x);
-                if (counter++ == 5)
-                {
-                    th.kill = true;
-                }
-            }, "ct timer event", 1000, true);
-            MessageManager.GetSingleton().AddMessagelistener(this, in KeyMap.k1, (ref string msg) => {
-                Console.WriteLine("k1 ct" + msg);
-                msg += "00000000";
-            });
-            Global.GetComponent<Timer>().Add(th);
+            Global.GetComponent<Timer>().Add(new Timerhandler((string s) => {
+                Console.WriteLine("" + s);
+            }, "-----------------", 1000, false));
 
+            //MessageManager.GetSingleton().AddMessagelistener(this, in KeyMap.k1, (ref string msg) => {
+            //    Console.WriteLine("k1 ct" + msg);
+            //    msg += "00000000";
+            //});
         }
         public virtual void Update(uint delta)
         {
-            
+            int x = 9;
+            if (th == null)
+            {
+                th = new Timerhandler((string s) => {
+                    Console.WriteLine("k1 ct" + s);
+                    Console.WriteLine("x " + x);
+                    if (counter++ == 5)
+                    {
+                        th.kill = true;
+                    }
+                }, "ct timer event", 1000, true);
+                Global.GetComponent<Timer>().Add(th);
+            }
         }
         public virtual void End()
         {
@@ -163,13 +168,22 @@ namespace DSManager
     {
         static void Main(string[] args)
         {
-            //Global.AddComponent<ServertoDS>();
-            //Global.AddComponent<DSClient>();
-            // Global.AddComponent<PlayerSimulator>();
-           // Global.AddComponent<LoginServer>();
+            String[] sperater = { "???" };
+            string str = "allss1???a2???a3???a4???";
+            string[] arraystr = str.Split(sperater, StringSplitOptions.RemoveEmptyEntries);
+            //int index = str.IndexOf("???", StringComparison.OrdinalIgnoreCase);
+            //string str1 = str.Substring(0, index);
+            //string strremain = str.Substring(index + 3);
+ 
+
+            Global.AddComponent<ServertoDS>();
+            Global.AddComponent<DSClient>();
             Global.AddComponent<MatchServer>();
+            Global.AddComponent<LoginServer>();
+            Global.AddComponent<PlayerSimulator>();
             //Global.AddComponent<ct1>();
-            // Global.AddComponent<ctest>();
+            //Global.AddComponent<ct>();
+            //Global.AddComponent<ctest>();
             while (true)
             {
                 try

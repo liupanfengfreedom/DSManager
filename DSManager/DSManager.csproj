@@ -111,13 +111,17 @@
     <Compile Include="DSManager\Launchserver.cs" />
     <Compile Include="Base\Entity.cs" />
     <Compile Include="LoadBalance\DSMproxy.cs" />
+    <Compile Include="LoadBalance\MatchSeverProxy.cs" />
     <Compile Include="LoadBalance\ServertoDS.cs" />
     <Compile Include="Login\LoginServer.cs" />
     <Compile Include="Login\Player.cs" />
     <Compile Include="LuaBase\luabase.cs" />
     <Compile Include="DSManager\DSManager.cs" />
+    <Compile Include="Match\Filter.cs" />
     <Compile Include="Match\LoginServerProxy.cs" />
     <Compile Include="Match\MatchServer.cs" />
+    <Compile Include="Match\Room.cs" />
+    <Compile Include="Match\RoomManager.cs" />
     <Compile Include="Message\KChannel.cs" />
     <Compile Include="Message\KeyMap.cs" />
     <Compile Include="Message\KService.cs" />

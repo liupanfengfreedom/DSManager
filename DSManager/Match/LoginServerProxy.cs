@@ -17,6 +17,12 @@ namespace DSManager
         public string SimulateInforStr { get; set; }
         [ProtoMember(3)]
         public int SimulateInforInt { get; set; }
+        [ProtoMember(4)]
+        public bool offline { get; set; }
+        /// //////////////////////////////////////////////////////////////
+        /////////return infor
+        [ProtoMember(5)]
+        public byte side { get; set; }
     }
     class LoginServerProxy
     {
@@ -62,7 +68,7 @@ namespace DSManager
             byte[] t = new byte[buffer.Length + 1];
             t[0] = command;
             Array.Copy(buffer, 0, t, 1, buffer.Length);
-            channel_loginserver.Send(ref t);
+            channel_loginserver.Send(t);
         }
     }
 }

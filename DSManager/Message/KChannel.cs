@@ -146,7 +146,7 @@ namespace DSManager
                 }
             }
         }
-        public void Send(ref byte[] buffer)
+        public void Send(byte[] buffer)
         {
             if (this.isConnected)
             {

@@ -23,7 +23,7 @@ namespace DSManager
             string serverip = (string)serveraddr["serverip"];
             int port = (int)(Int64)serveraddr["port"];
             IPAddress ipAd = IPAddress.Parse(serverip);//local ip address  "172.16.5.188"
-            channel = Session.get().GetChannel(new IPEndPoint(ipAd, port));
+            channel = Session.getnew().GetChannel(new IPEndPoint(ipAd, port));
             channel.onUserLevelReceivedCompleted += (ref byte[] buffer) => {
 #if RTT
                 var str = System.Text.Encoding.UTF8.GetString(buffer);
@@ -92,7 +92,7 @@ namespace DSManager
             byte[] t = new byte[buffer.Length + 1];
             t[0] = command;
             Array.Copy(buffer, 0, t, 1, buffer.Length);
-            channel.Send(ref t);
+            channel.Send(t);
         }
     }
 }
