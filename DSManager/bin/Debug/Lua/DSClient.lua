@@ -1,7 +1,7 @@
 remoteserver={--Load-balancing server
     nettype = "kcp",
     kcp={
-        port = 7000,
+        port = 7001,
         serverip = "192.168.31.252",
     }
 }

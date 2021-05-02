@@ -29,6 +29,8 @@ namespace DSManager
                 {
                     case CMDLoadBalanceServer.CREATEDS:
                         Logger.log("CMDLoadBalanceServer.CREATEDS");
+                        int id = BitConverter.ToInt32(buffer, 1);
+                        servertods.GetABestDSM().DS_request(id, CMD.NEW_DS);
                         break;
                     case CMDLoadBalanceServer.DESTROY:
                         Logger.log("CMDLoadBalanceServer.DESTROY");

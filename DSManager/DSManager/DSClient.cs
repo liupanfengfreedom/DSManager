@@ -45,6 +45,12 @@ namespace DSManager
                     case CMD.WANIP:
                         break;
                     case CMD.NEW_DS:
+                        int id = BitConverter.ToInt32(buffer, 1);
+                        dsinfor infor = DSManager.GetSingleton().LaunchADS(id);
+                        byte[] sumbuffer = new byte[8];
+                        sumbuffer.WriteTo(0, id);
+                        sumbuffer.WriteTo(4, infor.port);
+                        send((byte)CMD.NEW_DS, sumbuffer);
                         break;
                     case CMD.KILL_DS:
                         break;

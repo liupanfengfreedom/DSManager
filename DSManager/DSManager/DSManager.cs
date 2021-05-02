@@ -28,7 +28,7 @@ namespace DSManager
             }
             return dsm;
         }
-        public dsinfor LaunchADS()
+        public dsinfor LaunchADS(int id)
         {
             dsinfor ds = LS.CreateADSInstance();
             if (ds == null)
@@ -36,28 +36,32 @@ namespace DSManager
 
             }
             else {
-                dss.Add(ds.port,ds);
+                dss.Add(id,ds);
                 //Console.WriteLine("d.ProcessName: " + ds.ProcessName);
                 //Console.WriteLine("d.Id: " + ds.Id);
                 ds.process.Disposed += (object sender, EventArgs e) =>
                 {
                     //Console.Write("Disposed");
-                    window_file_log.Log("Disposed" + ds.process.Id);
+                    Logger.log("Disposed" + ds.process.Id);
                 };
                 ds.process.Exited += (object sender, EventArgs e) =>
                 {
                     //Console.Write("exit");
-                    window_file_log.Log("exit" + ds.process.Id);
+                    Logger.log("exit" + ds.process.Id);
                 };
             }
-            window_file_log.Log("create" + ds.process.Id);
+            Logger.log("create" + ds.process.Id);
             return ds;
         }
-        public void killds(Process ps)
+        public void killds(int id)
         {
-            if (ps != null && !ps.HasExited)
+            if (dss.ContainsKey(id))
             {
-                KillProcessAndChildren(ps.Id);
+                if (dss[id].process != null && !dss[id].process.HasExited)
+                { 
+                    KillProcessAndChildren(dss[id].process.Id);
+                }
+                dss.Remove(id);
             }
         }
         public void cleardss()

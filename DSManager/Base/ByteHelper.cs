@@ -71,5 +71,13 @@ namespace DSManager
 				bytes[offset + i] = numBytes[i];
 			}
 		}
+		public static void WriteTo(this byte[] bytes, int offset, int num)
+		{
+			byte[] numBytes = BitConverter.GetBytes(num);
+			for (int i = 0; i < numBytes.Length; ++i)
+			{
+				bytes[offset + i] = numBytes[i];
+			}
+		}
 	}
 }

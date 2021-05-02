@@ -12,7 +12,7 @@ namespace DSManager
 
     public class ServertoDS : luabase, Entity
     {
-        public List<DSMproxy> DSMchannel = new List<DSMproxy>();
+        public List<DSMproxy> DSMchannels = new List<DSMproxy>();
         public List<MatchSeverProxy> matchserverproxys =  new List<MatchSeverProxy>();
         public ServertoDS() : base("ServertoDS")
         {
@@ -23,7 +23,7 @@ namespace DSManager
             KService service = Session.createorget(port);
             service.onAcceptAKchannel += (ref KChannel channel) => {
                 Logger.log("DSMchannel.Add");
-                DSMchannel.Add(new DSMproxy(channel,this));
+                DSMchannels.Add(new DSMproxy(channel,this));
             };
 //////////////////////////////////////////////////////////////////////
             server = GetValueFromLua<LuaTable>("serverv1");
@@ -35,6 +35,19 @@ namespace DSManager
                 Logger.log("matchserverproxys.Add");
                 matchserverproxys.Add(new MatchSeverProxy(channel, this));
             };
+        }
+        public DSMproxy GetABestDSM()
+        {
+            DSMchannels.Sort((DSMproxy d1, DSMproxy d2)=>{ return d1.numberofds - d2.numberofds;});
+            if (DSMchannels.Count > 0)
+            {
+                return DSMchannels[0];
+            }
+            else
+            { 
+                Logger.log("DSMchannels.Count == 0 ,this should not happen ");
+            }
+            return null;
         }
         void Entity.Begin()
         {

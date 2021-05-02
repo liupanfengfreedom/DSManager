@@ -174,7 +174,11 @@ namespace DSManager
             //int index = str.IndexOf("???", StringComparison.OrdinalIgnoreCase);
             //string str1 = str.Substring(0, index);
             //string strremain = str.Substring(index + 3);
- 
+            //List<int> DSMchannels = new List<int>();
+            //DSMchannels.Add(9);
+            //DSMchannels.Add(1);
+            //DSMchannels.Add(5);
+            //DSMchannels.Sort((int d1, int d2) => { return d1 - d2; });
 
             Global.AddComponent<ServertoDS>();
             Global.AddComponent<DSClient>();
@@ -212,7 +216,7 @@ namespace DSManager
                     Global.RemoveComponent<ct1>();
                 }
             }
-            DSManager.GetSingleton().cleardss();
+            //DSManager.GetSingleton().cleardss();
         }
     }
 }
