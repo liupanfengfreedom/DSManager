@@ -19,11 +19,12 @@ namespace DSManager
     {
         static MatchServer matchserver;
         KChannel channel_loadbalance;
-        public List<LoginServerProxy> LoginServers = new List<LoginServerProxy>();
+        public ConcurrentDictionary<int, LoginServerProxy> LoginServers { get; private set; }
         ConcurrentDictionary<int, playerinfor> matchpool = new ConcurrentDictionary<int, playerinfor>();
         Filter filter = new Filter();
         public MatchServer() : base("MatchServer")
         {
+            LoginServers = new ConcurrentDictionary<int, LoginServerProxy>();
             matchserver = this;
             LuaTable server = GetValueFromLua<LuaTable>("server");
             string nettype = (string)server["nettype"];
@@ -31,7 +32,12 @@ namespace DSManager
             int port = (int)(Int64)serveraddr["port"];
             KService service = Session.createorget(port);
             service.onAcceptAKchannel += (ref KChannel channel) => {
-                LoginServers.Add(new LoginServerProxy(channel, this));
+                int id;
+                do
+                {
+                    id = RandomHelper.RandomNumber(int.MinValue, int.MaxValue);
+                } while (LoginServers.ContainsKey(id));
+                LoginServers.TryAdd(id, new LoginServerProxy(id, channel, this));
                 Logger.log("loinginserver in");
             };
             Task.Run(async () =>
@@ -58,8 +64,41 @@ namespace DSManager
             IPAddress ipAd = IPAddress.Parse(serverip);//local ip address  "172.16.5.188"
             channel_loadbalance = Session.getnew().GetChannel(new IPEndPoint(ipAd, port));
             channel_loadbalance.onUserLevelReceivedCompleted += (ref byte[] buffer) => {
+                switch ((CMDLoadBalanceServer)buffer[0])
+                {
+                    case CMDLoadBalanceServer.CREATEDS:
+                        int roomid = BitConverter.ToInt32(buffer, 1);
+                        int dsport = BitConverter.ToInt32(buffer, 5);
+                        string dswan = Encoding.getstring(buffer, 9, buffer.Length - 9);
+                        Room room;
+                        RoomManager.getsingleton().fightingRooms.TryGetValue(roomid,out room);
+                        foreach (var v in room.players.Values)
+                        {
+                            LoginServerProxy lsp;
+                            bool b = LoginServers.TryGetValue(v.loginserverproxyid,out lsp);
+                            if (b)
+                            {
+                                byte[] wanbytes = Encoding.getbyte(dswan);
+                                byte[] sumbuffer = new byte[12 + wanbytes.Length];
+                                sumbuffer.WriteTo(0, v.playerid);
+                                sumbuffer.WriteTo(4, v.side);
+                                sumbuffer.WriteTo(8, dsport);
+                                Array.Copy(wanbytes, 0, sumbuffer, 12, wanbytes.Length);
+                                lsp.sendtologinserver((byte)CMDMatchServer.MATCHREQUEST, sumbuffer);
+                            }
+                            else
+                            {
 
-
+                            }
+                        }
+                        Logger.log("--roomid-- : " + roomid + "--dsport--" + dsport + "--dswan-- " + dswan);
+                        break;
+                    case CMDLoadBalanceServer.DESTROY:
+                        Logger.log("CMDLoadBalanceServer.DESTROY");
+                        break;
+                    default:
+                        break;
+                }
             };
         } 
 

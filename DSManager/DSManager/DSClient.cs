@@ -14,10 +14,16 @@ namespace DSManager
     {
         Timerhandler th;
         KChannel channel;
+        string wan;
         string ts="";
+        ~DSClient()
+        { 
+        }
         public DSClient() : base("DSClient")
         {
             ts = GetValueFromLua<string>("testmessage");
+            wan = GetValueFromLua<string>("wan");
+
             LuaTable remoteserver = GetValueFromLua<LuaTable>("remoteserver");
             string nettype = (string)remoteserver["nettype"];
             LuaTable serveraddr = (LuaTable)remoteserver[nettype];
@@ -43,13 +49,16 @@ namespace DSManager
                 switch ((CMD)buffer[0])
                 {
                     case CMD.WANIP:
+                        send((byte)CMD.WANIP,Encoding.getbyte(wan));
                         break;
                     case CMD.NEW_DS:
-                        int id = BitConverter.ToInt32(buffer, 1);
-                        dsinfor infor = DSManager.GetSingleton().LaunchADS(id);
-                        byte[] sumbuffer = new byte[8];
-                        sumbuffer.WriteTo(0, id);
-                        sumbuffer.WriteTo(4, infor.port);
+                        int matchserverid = BitConverter.ToInt32(buffer, 1);
+                        int roomid = BitConverter.ToInt32(buffer, 5);
+                        dsinfor infor = DSManager.GetSingleton().LaunchADS(roomid);
+                        byte[] sumbuffer = new byte[12];
+                        sumbuffer.WriteTo(0, matchserverid);
+                        sumbuffer.WriteTo(4, roomid);
+                        sumbuffer.WriteTo(8, infor.port);
                         send((byte)CMD.NEW_DS, sumbuffer);
                         break;
                     case CMD.KILL_DS:
@@ -89,7 +98,6 @@ namespace DSManager
         }
         public void End()
         {
-            
         }
         public void Update(uint delta)
         {

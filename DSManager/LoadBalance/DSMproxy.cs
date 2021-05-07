@@ -16,6 +16,7 @@ namespace DSManager
     {
         KChannel channel;
         ServertoDS servertods;
+        byte[] wan;
         public int numberofds { get; private set; }
         public DSMproxy(KChannel channel, ServertoDS servertods)
         {
@@ -39,11 +40,21 @@ namespace DSManager
                 switch ((CMD)buffer[0])
                 {
                     case CMD.WANIP:
+                        wan = new byte[buffer.Length-1];
+                        Array.Copy(buffer,1,wan,0, wan.Length);
                         break;
                     case CMD.NEW_DS:
-                        int id = BitConverter.ToInt32(buffer, 1);
-                        int port = BitConverter.ToInt32(buffer, 5);
-                        Logger.log("id :"+id+ " -- port : "+ port);
+                        int matchserverid = BitConverter.ToInt32(buffer, 1);
+                        int roomid = BitConverter.ToInt32(buffer, 5);
+                        int port = BitConverter.ToInt32(buffer, 9);
+                        MatchSeverProxy matchserverproxy;
+                        servertods.matchserverproxys.TryGetValue(matchserverid,out matchserverproxy);
+                        byte[] sumbuffer = new byte[8+wan.Length];
+                        sumbuffer.WriteTo(0, roomid);
+                        sumbuffer.WriteTo(4, port);
+                        Array.Copy(wan,0, sumbuffer,8,wan.Length);
+                        matchserverproxy.send((byte)CMDLoadBalanceServer.CREATEDS, sumbuffer);
+                        Logger.log("matchserverid :" + matchserverid + " -- roomid :" + roomid + " -- port : "+ port);
                         break;
                     case CMD.KILL_DS:
                         break;
@@ -51,9 +62,10 @@ namespace DSManager
                         break;
                 }
 #endif
-                };
+            };
+            send((byte)CMD.WANIP, BitConverter.GetBytes(0));
         }
-        public void DS_request(int id, CMD cmd)
+        public void DS_request(int matchserverid, int roomid, CMD cmd)
         {
             switch (cmd)
             {
@@ -66,7 +78,10 @@ namespace DSManager
                 default:
                     break;
             }
-            send((byte)cmd, BitConverter.GetBytes(id));
+            byte[] sumbuffer = new byte[8];
+            sumbuffer.WriteTo(0, matchserverid);
+            sumbuffer.WriteTo(4, roomid);
+            send((byte)cmd, sumbuffer);
         }
         void send(byte command , byte[] buffer)
         {

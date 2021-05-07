@@ -39,7 +39,36 @@ namespace DSManager
             IPAddress ipAd = IPAddress.Parse(serverip);//local ip address  "172.16.5.188"
             channel_matchserver = Session.getnew().GetChannel(new IPEndPoint(ipAd, port));
             channel_matchserver.onUserLevelReceivedCompleted += (ref byte[] buffer) => {
+                switch ((CMDMatchServer)buffer[0])
+                {
+                    case CMDMatchServer.MATCHREQUEST:
+                        int playerid = BitConverter.ToInt32(buffer, 1);
+                        Player player;
+                        bool b =  Players.TryGetValue(playerid,out player);
+                        if (b)
+                        {
+                            int side = BitConverter.ToInt32(buffer, 5);
+                            int dsport = BitConverter.ToInt32(buffer, 9);
+                            string dswan = Encoding.getstring(buffer, 13, buffer.Length - 13);
+                            byte[] tempbuffer = new byte[buffer.Length - 5];
+                            Array.Copy(buffer, 5, tempbuffer, 0, tempbuffer.Length);
+                            player.send((byte)CMDPlayer.MATCHREQUEST, tempbuffer);
+                            Logger.log("--side-- : " + side + "--dsport--" + dsport + "--dswan-- " + dswan);
+                        }
+                        else
+                        {
+    
+                        }
 
+                        break;
+                    case CMDMatchServer.PLAYEREXITQUEST:
+      
+                        Logger.log(" :playerexitquest");
+
+                        break;
+                    default:
+                        break;
+                }
 
             };
         }

@@ -17,9 +17,10 @@ namespace DSManager
         public string conditions { get; private set; }
         public static int halfroomnumber = 1 ;
         public static uint expiredtime = 2000;
-        ConcurrentDictionary<int, playerinfor> players = new ConcurrentDictionary<int, playerinfor>();
+        public ConcurrentDictionary<int, playerinfor> players { get; private set; }
         public Room(int id, string conditions)
         {
+            players = new ConcurrentDictionary<int, playerinfor>();
             this.id = id;
             this.conditions = conditions;
         }

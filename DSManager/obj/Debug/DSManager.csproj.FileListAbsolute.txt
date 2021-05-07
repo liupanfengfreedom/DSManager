@@ -60,4 +60,3 @@ D:\vsprojects\DSManager\DSManager\bin\Debug\System.Collections.Immutable.dll
 D:\vsprojects\DSManager\DSManager\bin\Debug\protobuf-net.xml
 D:\vsprojects\DSManager\DSManager\bin\Debug\protobuf-net.Core.xml
 D:\vsprojects\DSManager\DSManager\bin\Debug\System.Collections.Immutable.xml
-D:\vsprojects\DSManager\DSManager\obj\Debug\DSManager.csprojAssemblyReference.cache

@@ -1,6 +1,7 @@
 ﻿using DSManager.LuaBase;
 using NLua;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -13,9 +14,10 @@ namespace DSManager
     public class ServertoDS : luabase, Entity
     {
         public List<DSMproxy> DSMchannels = new List<DSMproxy>();
-        public List<MatchSeverProxy> matchserverproxys =  new List<MatchSeverProxy>();
+        public ConcurrentDictionary<int, MatchSeverProxy> matchserverproxys { get; private set; }
         public ServertoDS() : base("ServertoDS")
         {
+            matchserverproxys = new ConcurrentDictionary<int, MatchSeverProxy>();
             LuaTable server = GetValueFromLua<LuaTable>("server");
             string nettype = (string)server["nettype"];
             LuaTable serveraddr = (LuaTable)server[nettype];
@@ -33,7 +35,12 @@ namespace DSManager
             service = Session.createorget(port);
             service.onAcceptAKchannel += (ref KChannel channel) => {
                 Logger.log("matchserverproxys.Add");
-                matchserverproxys.Add(new MatchSeverProxy(channel, this));
+                int id;
+                do
+                {
+                    id = RandomHelper.RandomNumber(int.MinValue, int.MaxValue);
+                } while (matchserverproxys.ContainsKey(id));
+                matchserverproxys.TryAdd(id, new MatchSeverProxy(id, channel, this));
             };
         }
         public DSMproxy GetABestDSM()

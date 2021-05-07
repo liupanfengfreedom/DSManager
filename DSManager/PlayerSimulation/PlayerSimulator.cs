@@ -48,7 +48,10 @@ namespace DSManager
                         Logger.log("log in ok");
                         break;
                     case CMDPlayer.MATCHREQUEST:
-                        Logger.log("match ok");
+                        int side = BitConverter.ToInt32(buffer, 1);
+                        int dsport = BitConverter.ToInt32(buffer, 5);
+                        string dswan = Encoding.getstring(buffer, 9, buffer.Length - 9);
+                        Logger.log("player : --side-- : " + side + "--dsport--" + dsport + "--dswan-- " + dswan);
                         break;
                     default:
                         break;

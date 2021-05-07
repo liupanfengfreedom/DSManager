@@ -19,22 +19,34 @@ namespace DSManager
         public int SimulateInforInt { get; set; }
         [ProtoMember(4)]
         public bool offline { get; set; }
+        [ProtoMember(5)]
+        public int loginserverproxyid { get; set; }
         /// //////////////////////////////////////////////////////////////
         /////////return infor
-        [ProtoMember(5)]
+        [ProtoMember(6)]
         public byte side { get; set; }
     }
     class LoginServerProxy
     {
+        int id;
         KChannel channel_loginserver;
         MatchServer matchserver;
-        public LoginServerProxy(KChannel channel, MatchServer matchserver)
+        public LoginServerProxy(int id,KChannel channel, MatchServer matchserver)
         {
+            this.id = id;
             this.channel_loginserver = channel;
             this.matchserver = matchserver;
             this.channel_loginserver.ondisconnect += () => {
-                this.matchserver.LoginServers.Remove(this);
-                Logger.log("ondisconnect");
+                LoginServerProxy lsp;
+                bool b = this.matchserver.LoginServers.TryRemove(id,out lsp);
+                if (b)
+                {
+                   Logger.log("channel_loginserver.ondisconnect successfully");
+                }
+                else
+                { 
+                   Logger.log("this should not happen for channel_loginserver.ondisconnect");
+                }
             };
             channel_loginserver.onUserLevelReceivedCompleted += (ref byte[] buffer) => {
                 //var str = Encoding.getstring(buffer, 1, buffer.Length - 1);
@@ -46,14 +58,15 @@ namespace DSManager
                         ms.Write(buffer,1,buffer.Length-1);
                         ms.Position = 0;
                         pi = Serializer.Deserialize<playerinfor>(ms);
+                        pi.loginserverproxyid = this.id;
                         Logger.log(pi.SimulateInforStr);
                         matchserver.addtomatchpool(pi);
                         Logger.log(pi.playerid+" :matchrequest");
 
                         break;
                     case CMDMatchServer.PLAYEREXITQUEST:
-                        int id = BitConverter.ToInt32(buffer, 1);
-                        matchserver.removefrompool(id);
+                        int playerid = BitConverter.ToInt32(buffer, 1);
+                        matchserver.removefrompool(playerid);
                         Logger.log(id+" :playerexitquest");
 
                         break;

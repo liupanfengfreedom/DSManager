@@ -5,4 +5,5 @@ remoteserver={--Load-balancing server
         serverip = "192.168.31.252",
     }
 }
+wan = "192.168.31.252"
 testmessage = "hi 101-----------"

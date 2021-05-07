@@ -10,8 +10,13 @@ namespace DSManager
     class RoomManager
     {
         static RoomManager roommanager=null;
-        ConcurrentDictionary<int, Room> waitingRooms = new ConcurrentDictionary<int, Room>();
-        ConcurrentDictionary<int, Room> fightingRooms = new ConcurrentDictionary<int, Room>();
+        public ConcurrentDictionary<int, Room> waitingRooms { get; private set; }
+        public ConcurrentDictionary<int, Room> fightingRooms { get; private set; }
+        public RoomManager()
+        {
+            waitingRooms = new ConcurrentDictionary<int, Room>();
+            fightingRooms = new ConcurrentDictionary<int, Room>();
+        }
         public static RoomManager getsingleton()
         {
             if (roommanager == null)

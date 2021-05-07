@@ -15,22 +15,33 @@ namespace DSManager
     {
         KChannel channel;
         ServertoDS servertods;
-        public MatchSeverProxy(KChannel channel, ServertoDS servertods)
+        int id;
+        public MatchSeverProxy(int id,KChannel channel, ServertoDS servertods)
         {
+            this.id = id;
             this.channel = channel;
             this.servertods = servertods;
             this.channel.ondisconnect += () => {
                 // Console.WriteLine("ondisconnect");
-
+                MatchSeverProxy matchserverproxy;
+               bool b = servertods.matchserverproxys.TryRemove(id,out matchserverproxy);
+                if (b)
+                {
+                  Logger.log("remove a MatchSeverProxy sucessfully");
+                }
+                else
+                { 
+                  Logger.log("this should not happen when remove a MatchSeverProxy");
+                }
             };
             this.channel.onUserLevelReceivedCompleted += (ref byte[] buffer) =>
             {
                 switch ((CMDLoadBalanceServer)buffer[0])
                 {
                     case CMDLoadBalanceServer.CREATEDS:
-                        Logger.log("CMDLoadBalanceServer.CREATEDS");
-                        int id = BitConverter.ToInt32(buffer, 1);
-                        servertods.GetABestDSM().DS_request(id, CMD.NEW_DS);
+                        int roomid = BitConverter.ToInt32(buffer, 1);        
+                        servertods.GetABestDSM().DS_request(id,roomid, CMD.NEW_DS);
+                        Logger.log("CMDLoadBalanceServer.CREATEDS MatchSeverid : " + id + "--roomid--" + roomid);
                         break;
                     case CMDLoadBalanceServer.DESTROY:
                         Logger.log("CMDLoadBalanceServer.DESTROY");
@@ -40,7 +51,7 @@ namespace DSManager
                 }
             };
         }
-        public void send(byte command, ref byte[] buffer)
+        public void send(byte command,byte[] buffer)
         {
             byte[] t = new byte[buffer.Length + 1];
             t[0] = command;
