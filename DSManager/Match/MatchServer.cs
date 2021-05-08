@@ -74,6 +74,11 @@ namespace DSManager
                         RoomManager.getsingleton().fightingRooms.TryGetValue(roomid,out room);
                         foreach (var v in room.players.Values)
                         {
+                            if (v.offline)
+                            {
+                                Logger.log("this player is offline ,player id is  : "+ v.playerid);
+                                continue;
+                            }
                             LoginServerProxy lsp;
                             bool b = LoginServers.TryGetValue(v.loginserverproxyid,out lsp);
                             if (b)

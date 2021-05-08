@@ -84,6 +84,18 @@ namespace DSManager
             }, "", Room.expiredtime, false);//
             Global.GetComponent<Timer>().Add(th);
         }
+        public int NumberOfOnlinePlayers()
+        {
+            foreach (var v in players)
+            {
+                if (v.Value.offline)
+                {
+                    playerinfor pif;
+                    players.TryRemove(v.Key,out pif);
+                }
+            }
+            return players.Count;
+        }
         public string[] getconditions()
         {
            String[] sperater = { "???" };

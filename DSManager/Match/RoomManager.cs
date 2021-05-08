@@ -16,6 +16,30 @@ namespace DSManager
         {
             waitingRooms = new ConcurrentDictionary<int, Room>();
             fightingRooms = new ConcurrentDictionary<int, Room>();
+            Task.Run(async () =>
+            {
+                try
+                {
+                    while (true)
+                    {
+                        await Task.Delay(1000);
+                        foreach (var v in fightingRooms)
+                        {
+                           int number = v.Value.NumberOfOnlinePlayers();
+                            if (number == 0)
+                            { 
+                                MatchServer.getsingleton().sendtoloadbalanceserver((byte)CMDLoadBalanceServer.DESTROY, BitConverter.GetBytes(v.Key));
+                                Room room;
+                                fightingRooms.TryRemove(v.Key,out room);
+                            }
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Logger.log(e.ToString());
+                }
+            });
         }
         public static RoomManager getsingleton()
         {

@@ -69,7 +69,6 @@ namespace DSManager
                     default:
                         break;
                 }
-
             };
         }
         public void sendtomatchserver(byte command, byte[] buffer)

@@ -62,6 +62,9 @@ namespace DSManager
                         send((byte)CMD.NEW_DS, sumbuffer);
                         break;
                     case CMD.KILL_DS:
+                        matchserverid = BitConverter.ToInt32(buffer, 1); 
+                        roomid = BitConverter.ToInt32(buffer, 5);
+                        DSManager.GetSingleton().killds(roomid);
                         break;
                     default:
                         break;

@@ -40,11 +40,13 @@ namespace DSManager
                 {
                     case CMDLoadBalanceServer.CREATEDS:
                         int roomid = BitConverter.ToInt32(buffer, 1);        
-                        servertods.GetABestDSM().DS_request(id,roomid, CMD.NEW_DS);
+                        servertods.GetABestDSM().DS_request(this.id,roomid, CMD.NEW_DS);
                         Logger.log("CMDLoadBalanceServer.CREATEDS MatchSeverid : " + id + "--roomid--" + roomid);
                         break;
                     case CMDLoadBalanceServer.DESTROY:
-                        Logger.log("CMDLoadBalanceServer.DESTROY");
+                         roomid = BitConverter.ToInt32(buffer, 1);
+                         servertods.GetABestDSM().DS_request(this.id,roomid, CMD.KILL_DS);
+                         Logger.log("CMDLoadBalanceServer.DESTROY");
                         break;
                     default:
                         break;

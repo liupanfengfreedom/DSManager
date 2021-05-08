@@ -14,6 +14,7 @@ namespace DSManager
         SINGUP,
         LOGIN,
         MATCHREQUEST,
+        EXITREQUEST,
     }
     class Player
     {
@@ -77,6 +78,11 @@ namespace DSManager
                         MemoryStream ms = new MemoryStream();
                         Serializer.Serialize(ms, playerinfor_);
                         loginserver.sendtomatchserver((byte)CMDMatchServer.MATCHREQUEST, ms.ToArray());
+                        break;
+                    case CMDPlayer.EXITREQUEST:
+                        Logger.log("CMDPlayer.EXITREQUEST");
+                        loginserver.sendtomatchserver((byte)CMDMatchServer.PLAYEREXITQUEST, BitConverter.GetBytes(id));
+
                         break;
                     default:
                         break;
