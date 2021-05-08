@@ -9,6 +9,7 @@ namespace DSManager
 {
     class Room
     {
+        bool b_created = false;
         Timerhandler th;
         Timerhandler th1;
         public bool b_wholeteam { get; private set; }//waitingfor wholeteam 
@@ -26,7 +27,7 @@ namespace DSManager
         }
         public void addplayer(playerinfor pi)
         {
-            if (players.Count > halfroomnumber)
+            if (players.Count >= halfroomnumber)
             {
                 pi.side = 1;
             }
@@ -45,26 +46,43 @@ namespace DSManager
             }
             if (players.Count == halfroomnumber * 2)
             {
-                th.kill = true;
-                Logger.log("room is full so create ds request");
-                RoomManager.getsingleton().waitingtofighting(id);
-                MatchServer.getsingleton().sendtoloadbalanceserver((byte)CMDLoadBalanceServer.CREATEDS, BitConverter.GetBytes(id));
+                if (th != null)
+                { 
+                   th.kill = true;
+                }
+                if (th1 != null)
+                {
+                    th1.kill = true;
+                }
+                if (!b_created)
+                {
+                    b_created = true;
+                    Logger.log("room is full so create ds request=================================================== : " + id);
+                    RoomManager.getsingleton().waitingtofighting(id);
+                    MatchServer.getsingleton().sendtoloadbalanceserver((byte)CMDLoadBalanceServer.CREATEDS, BitConverter.GetBytes(id));
+                }
             }
-            if (th == null)
-            {
-                th = new Timerhandler((string s) => {
-                    Logger.log("room time expired 000");
-                    b_anyplayerisok = true;
-/////////////////////////////////////////////////////////////////////////
-                    Global.GetComponent<Timer>().Add(new Timerhandler((string s1) => {
-                        Logger.log("room time expired 111");
+            th = new Timerhandler((string s) => {
+                Logger.log("room time expired 000");
+                b_anyplayerisok = true;
+                /////////////////////////////////////////////////////////////////////////
+                ///
+                th1 = new Timerhandler((string s1) =>
+                {
+                    if (!b_created)
+                    { 
+                        b_created = true;
+                        Logger.log("room time expired 111===============================================================: " + id);
                         RoomManager.getsingleton().waitingtofighting(id);
                         MatchServer.getsingleton().sendtoloadbalanceserver((byte)CMDLoadBalanceServer.CREATEDS, BitConverter.GetBytes(id));
-                    }, "", Room.expiredtime, false));
+                    }
 
-                }, "", Room.expiredtime, false);//
-                Global.GetComponent<Timer>().Add(th);
-            }
+
+                }, "", Room.expiredtime, false);
+                Global.GetComponent<Timer>().Add(th1);
+
+            }, "", Room.expiredtime, false);//
+            Global.GetComponent<Timer>().Add(th);
         }
         public string[] getconditions()
         {

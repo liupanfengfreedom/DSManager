@@ -29,9 +29,10 @@ namespace DSManager
         {
             int id;
             do {
-                id = RandomHelper.RandomNumber(0, int.MaxValue);
+                id = RandomHelper.RandomNumber(int.MinValue, int.MaxValue);
             } while (waitingRooms.ContainsKey(id) || fightingRooms.ContainsKey(id));
             Room room = new Room(id, rejectcondition);
+            Logger.log("new room----------- : "+ id);
             waitingRooms.TryAdd(id, room);
             Logger.log("waitingRooms"+ waitingRooms.Count);
             return room;

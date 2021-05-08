@@ -184,7 +184,7 @@ namespace DSManager
             Global.AddComponent<DSClient>();
             Global.AddComponent<MatchServer>();
             Global.AddComponent<LoginServer>();
-           // Global.AddComponent<PlayerSimulator>();
+            //Global.AddComponent<PlayerSimulator>();
             //Global.AddComponent<ct1>();
             //Global.AddComponent<ct>();
             //Global.AddComponent<ctest>();
