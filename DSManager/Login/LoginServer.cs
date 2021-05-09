@@ -53,7 +53,7 @@ namespace DSManager
                             byte[] tempbuffer = new byte[buffer.Length - 5];
                             Array.Copy(buffer, 5, tempbuffer, 0, tempbuffer.Length);
                             player.send((byte)CMDPlayer.MATCHREQUEST, tempbuffer);
-                            Logger.log("--side-- : " + side + "--dsport--" + dsport + "--dswan-- " + dswan);
+                            Logger.log("--player.playerinfor-- : " + player.playerinfor + "--side-- : " + side + "--dsport--" + dsport + "--dswan-- " + dswan);
                         }
                         else
                         {
