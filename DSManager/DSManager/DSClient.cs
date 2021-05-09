@@ -90,7 +90,7 @@ namespace DSManager
 
 #endif
             }, ts, 100, true);
-            Global.GetComponent<Timer>().Add(th);
+            //Global.GetComponent<Timer>().Add(th);
         }
         public void send(byte command,byte[] buffer)
         {

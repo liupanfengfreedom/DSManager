@@ -46,7 +46,7 @@ namespace DSManager
                 {
                     while (true)
                     {
-                        await Task.Delay(5000);
+                        await Task.Delay(50000);
                         Logger.log(matchpool.Count+ " :matchpool size");
                     }
                 }
