@@ -200,22 +200,22 @@ namespace DSManager
 
                 }
             }
-            int i = 0;
-            while (true)
-            {
-                Thread.Sleep(2000);
-                string msg = "sss";
-                MessageManager.GetSingleton().SendMessage(in KeyMap.k1, ref msg);
-                Console.WriteLine("after send  " + msg);
+            //int i = 0;
+            //while (true)
+            //{
+            //    Thread.Sleep(2000);
+            //    string msg = "sss";
+            //    MessageManager.GetSingleton().SendMessage(in KeyMap.k1, ref msg);
+            //    Console.WriteLine("after send  " + msg);
 
-                // MessageManager.GetSingleton().SendMessage(in KeyMap.k2, ref msg);
-                // DSManager.GetSingleton().LaunchADS();
-                if (i++ == 5)
-                {
-                    // break;
-                    Global.RemoveComponent<ct1>();
-                }
-            }
+            //    // MessageManager.GetSingleton().SendMessage(in KeyMap.k2, ref msg);
+            //    // DSManager.GetSingleton().LaunchADS();
+            //    if (i++ == 5)
+            //    {
+            //        // break;
+            //        Global.RemoveComponent<ct1>();
+            //    }
+            //}
             //DSManager.GetSingleton().cleardss();
         }
     }

@@ -9,18 +9,20 @@ namespace DSManager
 {
     class Room
     {
+        private readonly object RoomsLock = new object();
+
         bool b_created = false;
-        Timerhandler th;
-        Timerhandler th1;
         public bool b_wholeteam { get; private set; }//waitingfor wholeteam 
         public bool b_anyplayerisok { get; private set; }//this room has been waiting too long 
         public int id { get; private set; }
+        public bool isfull { get; private set; }
         public string conditions { get; private set; }
-        public static int halfroomnumber = 1 ;
+        public static int halfroomnumber = 5 ;
         public static uint expiredtime = 2000;
         public ConcurrentDictionary<int, playerinfor> players { get; private set; }
         public Room(int id, string conditions)
         {
+            isfull = false;
             players = new ConcurrentDictionary<int, playerinfor>();
             this.id = id;
             this.conditions = conditions;
@@ -46,43 +48,44 @@ namespace DSManager
             }
             if (players.Count == halfroomnumber * 2)
             {
-                if (th != null)
-                { 
-                   th.kill = true;
-                }
-                if (th1 != null)
-                {
-                    th1.kill = true;
-                }
-                if (!b_created)
-                {
-                    b_created = true;
-                    Logger.log("room is full so create ds request=================================================== : " + id);
-                    RoomManager.getsingleton().waitingtofighting(id);
-                    MatchServer.getsingleton().sendtoloadbalanceserver((byte)CMDLoadBalanceServer.CREATEDS, BitConverter.GetBytes(id));
-                }
-            }
-            th = new Timerhandler((string s) => {
-                Logger.log("room time expired 000");
-                b_anyplayerisok = true;
-                /////////////////////////////////////////////////////////////////////////
-                ///
-                th1 = new Timerhandler((string s1) =>
+                isfull = true;
+                lock (RoomsLock)
                 {
                     if (!b_created)
-                    { 
+                    {
                         b_created = true;
-                        Logger.log("room time expired 111===============================================================: " + id);
+                        Logger.log("room is full so create ds request=================================================== : " + id);
                         RoomManager.getsingleton().waitingtofighting(id);
                         MatchServer.getsingleton().sendtoloadbalanceserver((byte)CMDLoadBalanceServer.CREATEDS, BitConverter.GetBytes(id));
                     }
-
-
-                }, "", Room.expiredtime, false);
-                Global.GetComponent<Timer>().Add(th1);
-
-            }, "", Room.expiredtime, false);//
-            Global.GetComponent<Timer>().Add(th);
+                }
+            }
+            Task.Run(async () =>
+            {
+                try
+                {
+                    await Task.Delay(System.TimeSpan.FromMilliseconds(Room.expiredtime));
+                    Logger.log("room time expired 000");
+                    b_anyplayerisok = true;
+                    /////////////////////////////////////////////////////////////////////////
+                    ///
+                    await Task.Delay(System.TimeSpan.FromMilliseconds(Room.expiredtime));
+                    lock (RoomsLock)
+                    {
+                        if (!b_created)
+                        {
+                            b_created = true;
+                            Logger.log("room time expired 111===============================================================: " + id);
+                            RoomManager.getsingleton().waitingtofighting(id);
+                            MatchServer.getsingleton().sendtoloadbalanceserver((byte)CMDLoadBalanceServer.CREATEDS, BitConverter.GetBytes(id));
+                        }
+                    }
+                }
+                catch (Exception e)
+                {
+                    Logger.log(e.ToString());
+                }
+            });
         }
         public int NumberOfOnlinePlayers()
         {
