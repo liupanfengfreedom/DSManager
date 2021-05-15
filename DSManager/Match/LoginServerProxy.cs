@@ -14,16 +14,26 @@ namespace DSManager
         [ProtoMember(1)]
         public  int playerid { get; set; }
         [ProtoMember(2)]
-        public string SimulateInforStr { get; set; }
+        public int halfroomnumber { get; set; }
+
+////////////////////////////////////////////////////////
         [ProtoMember(3)]
-        public int SimulateInforInt { get; set; }
+        public int roomnumber { get; set; }
         [ProtoMember(4)]
-        public bool offline { get; set; }
+        public bool homeowner { get; set; }
+////////////////////////////////////////////////////////
+
         [ProtoMember(5)]
+        public string SimulateInforStr { get; set; }
+        [ProtoMember(6)]
+        public int SimulateInforInt { get; set; }
+        [ProtoMember(7)]
+        public bool offline { get; set; }
+        [ProtoMember(8)]
         public int loginserverproxyid { get; set; }
         /// //////////////////////////////////////////////////////////////
         /////////return infor
-        [ProtoMember(6)]
+        [ProtoMember(9)]
         public byte side { get; set; }
     }
     class LoginServerProxy
@@ -62,6 +72,43 @@ namespace DSManager
                         Logger.log(pi.SimulateInforStr);
                         matchserver.addtomatchpool(pi);
                         Logger.log(pi.playerid+" :matchrequest");
+
+                        break;
+                    case CMDMatchServer.CREATEROOM:
+                        pi = new playerinfor();
+                        ms = new MemoryStream();
+                        ms.Write(buffer, 1, buffer.Length - 1);
+                        ms.Position = 0;
+                        pi = Serializer.Deserialize<playerinfor>(ms);
+                        pi.loginserverproxyid = this.id;
+                        Logger.log(pi.SimulateInforStr);
+                        Room room = RoomManager.getsingleton().createroom(pi.halfroomnumber);
+                        room.addplayerv1(pi);
+                        /////////////////////////////////////////
+                        pi.roomnumber = room.id;
+                        ms = new MemoryStream();
+                        Serializer.Serialize(ms, pi);
+                        sendtologinserver((byte)CMDMatchServer.CREATEROOM, ms.ToArray());
+                        Logger.log(pi.roomnumber + " :pi.roomnumber CREATEROOM");
+                        break;
+                    case CMDMatchServer.JOINROOM:
+                        pi = new playerinfor();
+                        ms = new MemoryStream();
+                        ms.Write(buffer, 1, buffer.Length - 1);
+                        ms.Position = 0;
+                        pi = Serializer.Deserialize<playerinfor>(ms);
+                        pi.loginserverproxyid = this.id;
+                        Logger.log(pi.SimulateInforStr);
+                        if (RoomManager.getsingleton().CreatingRooms.TryGetValue(pi.roomnumber, out room))
+                        {
+                            room.addplayerv1(pi);
+                        }
+                        else
+                        { 
+                            Logger.log("join room but the room with specific number is not found");
+                        }
+                        Logger.log(pi.roomnumber + " :pi.roomnumber JOINROOM");
+
 
                         break;
                     case CMDMatchServer.PLAYEREXITQUEST:
