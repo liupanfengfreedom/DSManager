@@ -9,6 +9,7 @@ namespace DSManager
 {
     class Filter
     {
+        public int halfroomnumber { get; private set; }
         private readonly object playersLock = new object();
         ConcurrentDictionary<int, playerinfor> players = new ConcurrentDictionary<int, playerinfor>();
         ConcurrentDictionary<string, Filter> layers = new ConcurrentDictionary<string, Filter>();
@@ -30,6 +31,7 @@ namespace DSManager
 ///////////////////////////////////////////////////////////
             if (remaincondition == "")
             {
+                filter.halfroomnumber = Int32.Parse(condition);
                 filter.addplayer(pi);
             }
             else
@@ -42,9 +44,9 @@ namespace DSManager
             lock (playersLock)
             {
                 players.TryAdd(pi.playerid, pi);
-                if (players.Count == Room.halfroomnumber)//when number of player in this filter is equal to Room.halfroomnumber then move these players to room *************
+                if (players.Count == halfroomnumber)//when number of player in this filter is equal to Room.halfroomnumber then move these players to room *************
                 {
-                    Logger.log("players.Count == Room.halfroomnumber");
+                    Logger.log("players.Count == Room.halfroomnumber : "+ halfroomnumber);
                     String[] sperater = { "???" };
                     String[] conditions = pi.SimulateInforStr.Split(sperater, StringSplitOptions.RemoveEmptyEntries);
 
@@ -73,7 +75,7 @@ namespace DSManager
                     }
                     if (room == null)
                     {
-                        room = RoomManager.getsingleton().createroom(pi.SimulateInforStr);
+                        room = RoomManager.getsingleton().createroom(halfroomnumber,pi.SimulateInforStr);
                         Logger.log("room == null so create a room");
                     }
                     foreach (var v in players.Values)
@@ -113,7 +115,7 @@ namespace DSManager
                             }
                             if (room1 == null)
                             {
-                                room1 = RoomManager.getsingleton().createroom("");//this room does not reject any national flag 
+                                room1 = RoomManager.getsingleton().createroom(halfroomnumber, "");//this room does not reject any national flag 
                             }
                             return room1;
                         };

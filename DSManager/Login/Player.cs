@@ -14,6 +14,8 @@ namespace DSManager
         SINGUP,
         LOGIN,
         MATCHREQUEST,
+        CREATEROOM,
+        JOINROOM,
         EXITREQUEST,
     }
     class Player
@@ -43,7 +45,6 @@ namespace DSManager
                 byte[] buffer1 = asen.GetBytes(str + "server");
                 send(ref buffer1);
 #else
-                var str = Encoding.getstring(buffer, 1, buffer.Length - 1);
                 switch ((CMDPlayer)buffer[0])
                 {
                     case CMDPlayer.SINGUP:
@@ -52,6 +53,7 @@ namespace DSManager
                         break;
                     case CMDPlayer.LOGIN:
                         Logger.log("log in ");
+                        var str = Encoding.getstring(buffer, 1, buffer.Length - 1);
                         Logger.log(str);
                         ////////////////////////////////////////////////////////////////////
                         //read data base
@@ -62,22 +64,49 @@ namespace DSManager
                             simulateddata = RandomHelper.RandomNumber(1, 3);
                             playerinfor += simulateddata.ToString()+"???";
                         }
-
 ////////////////////////////////////////////////////////////////////////////////////
                         //ack
                         send((byte)CMDPlayer.LOGIN, Encoding.getbyte("hi"));
                         break;
                     case CMDPlayer.MATCHREQUEST:
+                        int halfroomnumber = BitConverter.ToInt32(buffer, 1);
                         Logger.log("match ");
+                        Logger.log("halfroomnumber :"+ halfroomnumber);
                         Logger.log(playerinfor);
                         var playerinfor_ = new playerinfor {
                             playerid = id,
-                            SimulateInforStr = playerinfor,
+                            SimulateInforStr = playerinfor + halfroomnumber+"???",
                             SimulateInforInt = 1234
                         };
                         MemoryStream ms = new MemoryStream();
                         Serializer.Serialize(ms, playerinfor_);
                         loginserver.sendtomatchserver((byte)CMDMatchServer.MATCHREQUEST, ms.ToArray());
+                        break;
+                    case CMDPlayer.CREATEROOM:
+                        Logger.log("createroom ");
+                        Logger.log(playerinfor);
+                        playerinfor_ = new playerinfor
+                        {
+                            playerid = id,
+                            homeowner = true,
+                            halfroomnumber = BitConverter.ToInt32(buffer, 1),
+                        };
+                        ms = new MemoryStream();
+                        Serializer.Serialize(ms, playerinfor_);
+                        loginserver.sendtomatchserver((byte)CMDMatchServer.CREATEROOM, ms.ToArray());
+                        break;
+                    case CMDPlayer.JOINROOM:
+                        Logger.log("joinroom ");
+                        Logger.log(playerinfor);
+                        playerinfor_ = new playerinfor
+                        {
+                            playerid = id,
+                            homeowner = false,
+                            roomnumber = BitConverter.ToInt32(buffer, 1),
+                        };
+                        ms = new MemoryStream();
+                        Serializer.Serialize(ms, playerinfor_);
+                        loginserver.sendtomatchserver((byte)CMDMatchServer.JOINROOM, ms.ToArray());
                         break;
                     case CMDPlayer.EXITREQUEST:
                         Logger.log("CMDPlayer.EXITREQUEST");

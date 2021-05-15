@@ -14,9 +14,14 @@ namespace DSManager
         Timerhandler th;
         KChannel channel;
         string ts = "";
+        bool bcreat;
+        int roomnumber;
         public PlayerSimulator() : base("PlayerSimulator")
         {
-            ts = GetValueFromLua<string>("testmessage");
+            ts = GetValueFromLua<string>("testmessage");      
+            LuaTable roominfor = GetValueFromLua<LuaTable>("roominfor");
+            bcreat = (bool)roominfor["bcreat"];
+            roomnumber = (int)(Int64)roominfor["roomnumber"];
             LuaTable remoteserver = GetValueFromLua<LuaTable>("remoteserver");
             string nettype = (string)remoteserver["nettype"];
             LuaTable serveraddr = (LuaTable)remoteserver[nettype];
@@ -47,6 +52,13 @@ namespace DSManager
                     case CMDPlayer.LOGIN:
                         Logger.log("log in ok");
                         break;
+                    case CMDPlayer.CREATEROOM:
+                        int roomnumber = BitConverter.ToInt32(buffer, 1);
+                        Logger.log("creatroom : "+ roomnumber);
+                        break;
+                    case CMDPlayer.JOINROOM:
+                        Logger.log("log in ok");
+                        break;
                     case CMDPlayer.MATCHREQUEST:
                         int side = BitConverter.ToInt32(buffer, 1);
                         int dsport = BitConverter.ToInt32(buffer, 5);
@@ -73,7 +85,16 @@ namespace DSManager
                     ts += RandomHelper.RandomNumber(0,int.MaxValue);
                     send((byte)CMDPlayer.LOGIN, Encoding.getbyte(ts));
                     await Task.Delay(2000);
-                    send((byte)CMDPlayer.MATCHREQUEST, Encoding.getbyte(""));
+                    int halfroomnumber = 2;
+                    send((byte)CMDPlayer.MATCHREQUEST, BitConverter.GetBytes(halfroomnumber));
+                    //if (bcreat)
+                    //{
+                    //    send((byte)CMDPlayer.CREATEROOM, BitConverter.GetBytes(halfroomnumber));
+                    //}
+                    //else
+                    //{
+                    //    send((byte)CMDPlayer.JOINROOM, BitConverter.GetBytes(roomnumber));
+                    //}
 
                 }
                 catch (Exception e)

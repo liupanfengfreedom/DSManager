@@ -17,15 +17,29 @@ namespace DSManager
         public int id { get; private set; }
         public bool isfull { get; private set; }
         public string conditions { get; private set; }
-        public static int halfroomnumber = 5 ;
+        public int halfroomnumber { get; private set; }
         public static uint expiredtime = 2000;
         public ConcurrentDictionary<int, playerinfor> players { get; private set; }
-        public Room(int id, string conditions)
+        public Room(int id,int halfroomnumber, string conditions)
         {
             isfull = false;
             players = new ConcurrentDictionary<int, playerinfor>();
             this.id = id;
+            this.halfroomnumber = halfroomnumber;
             this.conditions = conditions;
+        }
+        public Room(int id, int halfroomnumber)
+        {
+            isfull = false;
+            players = new ConcurrentDictionary<int, playerinfor>();
+            this.id = id;
+            this.halfroomnumber = halfroomnumber;
+        }
+        public void addplayerv1(playerinfor pi)
+        { 
+            players.TryAdd(pi.playerid, pi);
+            Logger.log("roomid : "+ id+" number of players :" + players.Count);
+
         }
         public void addplayer(playerinfor pi)
         {

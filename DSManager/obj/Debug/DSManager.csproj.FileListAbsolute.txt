@@ -60,4 +60,3 @@ D:\vsprojects\DSManager\DSManager\obj\Debug\DSManager.csproj.CoreCompileInputs.c
 D:\vsprojects\DSManager\DSManager\obj\Debug\DSManager.csproj.CopyComplete
 D:\vsprojects\DSManager\DSManager\obj\Debug\DSManager.exe
 D:\vsprojects\DSManager\DSManager\obj\Debug\DSManager.pdb
-D:\vsprojects\DSManager\DSManager\obj\Debug\DSManager.csprojAssemblyReference.cache

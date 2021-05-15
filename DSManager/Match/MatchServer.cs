@@ -13,6 +13,8 @@ namespace DSManager
     enum CMDMatchServer
     {
         MATCHREQUEST,
+        CREATEROOM,
+        JOINROOM,
         PLAYEREXITQUEST,
     }
     class MatchServer : luabase, Entity

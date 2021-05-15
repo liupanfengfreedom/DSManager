@@ -7,6 +7,8 @@ using NLua;
 using DSManager.LuaBase;
 using System.Collections.Concurrent;
 using System.Net;
+using System.IO;
+using ProtoBuf;
 
 namespace DSManager
 {
@@ -53,12 +55,39 @@ namespace DSManager
                             byte[] tempbuffer = new byte[buffer.Length - 5];
                             Array.Copy(buffer, 5, tempbuffer, 0, tempbuffer.Length);
                             player.send((byte)CMDPlayer.MATCHREQUEST, tempbuffer);
-                            Logger.log("--side-- : " + side + "--dsport--" + dsport + "--dswan-- " + dswan);
+                            Logger.log("--player.playerinfor-- : " + player.playerinfor + "--side-- : " + side + "--dsport--" + dsport + "--dswan-- " + dswan);
                         }
                         else
                         {
     
                         }
+
+                        break;
+                    case CMDMatchServer.CREATEROOM:
+                        playerinfor pi = new playerinfor();
+                        MemoryStream ms = new MemoryStream();
+                        ms.Write(buffer, 1, buffer.Length - 1);
+                        ms.Position = 0;
+                        pi = Serializer.Deserialize<playerinfor>(ms);        
+                        b = Players.TryGetValue(pi.playerid, out player);
+                        if (b)
+                        {
+                            player.send((byte)CMDPlayer.CREATEROOM, BitConverter.GetBytes(pi.roomnumber));
+                            Logger.log(pi.roomnumber+ " :pi.roomnumber :createroom");
+                        }
+                        else
+                        {
+
+                        }
+
+
+
+
+
+                        break;
+                    case CMDMatchServer.JOINROOM:
+
+                        Logger.log(" :joinroom");
 
                         break;
                     case CMDMatchServer.PLAYEREXITQUEST:
