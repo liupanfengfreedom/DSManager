@@ -10,7 +10,9 @@ namespace DSManager
    public enum CMD { 
        WANIP,
        NEW_DS,
+       NEW_DSV1,
        KILL_DS,
+       KILL_DSV1,
     }
   public  class DSMproxy
     {
@@ -56,6 +58,18 @@ namespace DSManager
                         matchserverproxy.send((byte)CMDLoadBalanceServer.CREATEDS, sumbuffer);
                         Logger.log("matchserverid :" + matchserverid + " -- roomid :" + roomid + " -- port : "+ port);
                         break;
+                    case CMD.NEW_DSV1:
+                        matchserverid = BitConverter.ToInt32(buffer, 1);
+                        roomid = BitConverter.ToInt32(buffer, 5);
+                        port = BitConverter.ToInt32(buffer, 9);                      
+                        servertods.matchserverproxys.TryGetValue(matchserverid, out matchserverproxy);
+                        sumbuffer = new byte[8 + wan.Length];
+                        sumbuffer.WriteTo(0, roomid);
+                        sumbuffer.WriteTo(4, port);
+                        Array.Copy(wan, 0, sumbuffer, 8, wan.Length);
+                        matchserverproxy.send((byte)CMDLoadBalanceServer.CREATEDSV1, sumbuffer);
+                        Logger.log("matchserverid :" + matchserverid + " -- roomid :" + roomid + " -- port : " + port);
+                        break;
                     case CMD.KILL_DS:
                         break;
                     default:
@@ -70,9 +84,11 @@ namespace DSManager
             switch (cmd)
             {
                 case CMD.NEW_DS:
+                case CMD.NEW_DSV1:
                     numberofds++;
                     break;
                 case CMD.KILL_DS:
+                case CMD.KILL_DSV1:
                     numberofds--;
                     break;
                 default:

@@ -16,6 +16,8 @@ namespace DSManager
         MATCHREQUEST,
         CREATEROOM,
         JOINROOM,
+        JOINROOMFAILED,
+        STARTGAME,
         EXITREQUEST,
     }
     class Player
@@ -89,7 +91,7 @@ namespace DSManager
                         {
                             playerid = id,
                             homeowner = true,
-                            halfroomnumber = BitConverter.ToInt32(buffer, 1),
+                            halfroomnumber = BitConverter.ToInt32(buffer, 1),//here the halfroomnumber seem to be useless
                         };
                         ms = new MemoryStream();
                         Serializer.Serialize(ms, playerinfor_);
@@ -107,6 +109,19 @@ namespace DSManager
                         ms = new MemoryStream();
                         Serializer.Serialize(ms, playerinfor_);
                         loginserver.sendtomatchserver((byte)CMDMatchServer.JOINROOM, ms.ToArray());
+                        break;
+                    case CMDPlayer.STARTGAME:
+                        Logger.log("startgame ");
+                        Logger.log(playerinfor);
+                        playerinfor_ = new playerinfor
+                        {
+                            playerid = id,
+                            homeowner = true,
+                            roomnumber = BitConverter.ToInt32(buffer, 1),
+                        };
+                        ms = new MemoryStream();
+                        Serializer.Serialize(ms, playerinfor_);
+                        loginserver.sendtomatchserver((byte)CMDMatchServer.STARTGAME, ms.ToArray());
                         break;
                     case CMDPlayer.EXITREQUEST:
                         Logger.log("CMDPlayer.EXITREQUEST");

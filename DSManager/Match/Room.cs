@@ -39,7 +39,21 @@ namespace DSManager
         { 
             players.TryAdd(pi.playerid, pi);
             Logger.log("roomid : "+ id+" number of players :" + players.Count);
+            //if (players.Count == halfroomnumber)
+            //{ 
+            
+            //}
+        }
+        public void startgame()
+        { 
+            int newid = RoomManager.getsingleton().creatingtocreated(id);
+            MatchServer.getsingleton().sendtoloadbalanceserver((byte)CMDLoadBalanceServer.CREATEDSV1, BitConverter.GetBytes(newid));
+            Logger.log("startgame() create room =================================================== newid : " + newid + " id :"+ id);
 
+        }
+        public void changeid(int id)
+        {
+            this.id = id;
         }
         public void addplayer(playerinfor pi)
         {

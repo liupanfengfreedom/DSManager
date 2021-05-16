@@ -15,6 +15,8 @@ namespace DSManager
         MATCHREQUEST,
         CREATEROOM,
         JOINROOM,
+        JOINROOMFAILED,
+        STARTGAME,
         PLAYEREXITQUEST,
     }
     class MatchServer : luabase, Entity
@@ -100,6 +102,37 @@ namespace DSManager
                         }
                         Logger.log("--roomid-- : " + roomid + "--dsport--" + dsport + "--dswan-- " + dswan);
                         break;
+                    case CMDLoadBalanceServer.CREATEDSV1:
+                        roomid = BitConverter.ToInt32(buffer, 1);
+                        dsport = BitConverter.ToInt32(buffer, 5);
+                        dswan = Encoding.getstring(buffer, 9, buffer.Length - 9);
+                        RoomManager.getsingleton().CreatedRooms.TryGetValue(roomid, out room);
+                        foreach (var v in room.players.Values)
+                        {
+                            if (v.offline)
+                            {
+                                Logger.log("this player is offline ,player id is  : " + v.playerid);
+                                continue;
+                            }
+                            LoginServerProxy lsp;
+                            bool b = LoginServers.TryGetValue(v.loginserverproxyid, out lsp);
+                            if (b)
+                            {
+                                byte[] wanbytes = Encoding.getbyte(dswan);
+                                byte[] sumbuffer = new byte[12 + wanbytes.Length];
+                                sumbuffer.WriteTo(0, v.playerid);
+                                sumbuffer.WriteTo(4, v.side);
+                                sumbuffer.WriteTo(8, dsport);
+                                Array.Copy(wanbytes, 0, sumbuffer, 12, wanbytes.Length);
+                                lsp.sendtologinserver((byte)CMDMatchServer.STARTGAME, sumbuffer);
+                            }
+                            else
+                            {
+
+                            }
+                        }
+                        Logger.log("--roomid-- : " + roomid + "--dsport--" + dsport + "--dswan-- " + dswan);
+                        break;
                     case CMDLoadBalanceServer.DESTROY:
                         Logger.log("CMDLoadBalanceServer.DESTROY");
                         break;
@@ -120,6 +153,16 @@ namespace DSManager
                 Logger.log("the same key already in matchpool");
             }
         }
+        public void addtomatchpoolV1(playerinfor player)
+        {       
+            bool b = matchpool.TryAdd(player.playerid, player);
+            if (b)
+            { }
+            else
+            {
+                Logger.log("the same key already in matchpool");
+            }
+        }
         public void removefrompool(int id)
         {
             playerinfor player;
@@ -132,6 +175,8 @@ namespace DSManager
             {
                 Logger.log("remove key failed from matchpool");
             }
+            /////////////////////////////////////////////////////////////////
+            
         }
         public void sendtoloadbalanceserver(byte command, byte[] buffer)
         {

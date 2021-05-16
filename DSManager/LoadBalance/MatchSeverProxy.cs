@@ -9,7 +9,9 @@ namespace DSManager
     enum CMDLoadBalanceServer
     {
         CREATEDS,
+        CREATEDSV1,
         DESTROY,
+        DESTROYV1,
     }
     public class MatchSeverProxy
     {
@@ -43,10 +45,20 @@ namespace DSManager
                         servertods.GetABestDSM().DS_request(this.id,roomid, CMD.NEW_DS);
                         Logger.log("CMDLoadBalanceServer.CREATEDS MatchSeverid : " + id + "--roomid--" + roomid);
                         break;
+                    case CMDLoadBalanceServer.CREATEDSV1:
+                        roomid = BitConverter.ToInt32(buffer, 1);
+                        servertods.GetABestDSM().DS_request(this.id, roomid, CMD.NEW_DSV1);
+                        Logger.log("CMDLoadBalanceServer.CREATEDS MatchSeverid : " + id + "--roomid--" + roomid);
+                        break;
                     case CMDLoadBalanceServer.DESTROY:
                          roomid = BitConverter.ToInt32(buffer, 1);
                          servertods.GetABestDSM().DS_request(this.id,roomid, CMD.KILL_DS);
                          Logger.log("CMDLoadBalanceServer.DESTROY");
+                        break;
+                    case CMDLoadBalanceServer.DESTROYV1:
+                        roomid = BitConverter.ToInt32(buffer, 1);
+                        servertods.GetABestDSM().DS_request(this.id, roomid, CMD.KILL_DSV1);
+                        Logger.log("CMDLoadBalanceServer.DESTROY");
                         break;
                     default:
                         break;

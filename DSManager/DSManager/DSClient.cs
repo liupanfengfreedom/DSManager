@@ -61,10 +61,25 @@ namespace DSManager
                         sumbuffer.WriteTo(8, infor.port);
                         send((byte)CMD.NEW_DS, sumbuffer);
                         break;
+                    case CMD.NEW_DSV1:
+                        matchserverid = BitConverter.ToInt32(buffer, 1);
+                        roomid = BitConverter.ToInt32(buffer, 5);
+                        infor = DSManager.GetSingleton().LaunchADSV1(roomid);
+                        sumbuffer = new byte[12];
+                        sumbuffer.WriteTo(0, matchserverid);
+                        sumbuffer.WriteTo(4, roomid);
+                        sumbuffer.WriteTo(8, infor.port);
+                        send((byte)CMD.NEW_DSV1, sumbuffer);
+                        break;
                     case CMD.KILL_DS:
                         matchserverid = BitConverter.ToInt32(buffer, 1); 
                         roomid = BitConverter.ToInt32(buffer, 5);
                         DSManager.GetSingleton().killds(roomid);
+                        break;
+                    case CMD.KILL_DSV1:
+                        matchserverid = BitConverter.ToInt32(buffer, 1);
+                        roomid = BitConverter.ToInt32(buffer, 5);
+                        DSManager.GetSingleton().killdsV1(roomid);
                         break;
                     default:
                         break;

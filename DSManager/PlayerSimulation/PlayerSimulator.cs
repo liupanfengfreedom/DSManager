@@ -53,17 +53,28 @@ namespace DSManager
                         Logger.log("log in ok");
                         break;
                     case CMDPlayer.CREATEROOM:
-                        int roomnumber = BitConverter.ToInt32(buffer, 1);
+                        roomnumber = BitConverter.ToInt32(buffer, 1);
                         Logger.log("creatroom : "+ roomnumber);
                         break;
                     case CMDPlayer.JOINROOM:
-                        Logger.log("log in ok");
+                        roomnumber = BitConverter.ToInt32(buffer, 1);
+                        Logger.log("joinroom : " + roomnumber);
                         break;
-                    case CMDPlayer.MATCHREQUEST:
+                    case CMDPlayer.JOINROOMFAILED:
+                        roomnumber = BitConverter.ToInt32(buffer, 1);
+                        Logger.log("joinroom failed: " + roomnumber);
+                        break;
+                    case CMDPlayer.STARTGAME:
                         int side = BitConverter.ToInt32(buffer, 1);
                         int dsport = BitConverter.ToInt32(buffer, 5);
                         string dswan = Encoding.getstring(buffer, 9, buffer.Length - 9);
-                        Logger.log("player : --side-- : " + side + "--dsport--" + dsport + "--dswan-- " + dswan);
+                        Logger.log("STARTGAME player : --side-- : " + side + "--dsport--" + dsport + "--dswan-- " + dswan);
+                        break;
+                    case CMDPlayer.MATCHREQUEST:
+                         side = BitConverter.ToInt32(buffer, 1);
+                         dsport = BitConverter.ToInt32(buffer, 5);
+                         dswan = Encoding.getstring(buffer, 9, buffer.Length - 9);
+                        Logger.log("MATCHREQUEST player : --side-- : " + side + "--dsport--" + dsport + "--dswan-- " + dswan);
                         break;
                     default:
                         break;
@@ -86,15 +97,18 @@ namespace DSManager
                     send((byte)CMDPlayer.LOGIN, Encoding.getbyte(ts));
                     await Task.Delay(2000);
                     int halfroomnumber = 2;
-                    send((byte)CMDPlayer.MATCHREQUEST, BitConverter.GetBytes(halfroomnumber));
-                    //if (bcreat)
-                    //{
-                    //    send((byte)CMDPlayer.CREATEROOM, BitConverter.GetBytes(halfroomnumber));
-                    //}
-                    //else
-                    //{
-                    //    send((byte)CMDPlayer.JOINROOM, BitConverter.GetBytes(roomnumber));
-                    //}
+                    // send((byte)CMDPlayer.MATCHREQUEST, BitConverter.GetBytes(halfroomnumber));
+                    if (bcreat)
+                    {
+                        send((byte)CMDPlayer.CREATEROOM, BitConverter.GetBytes(halfroomnumber));//here the halfroomnumber seem to be useless
+                        await Task.Delay(16000);
+                        send((byte)CMDPlayer.STARTGAME, BitConverter.GetBytes(roomnumber));
+
+                    }
+                    else
+                    {
+                        send((byte)CMDPlayer.JOINROOM, BitConverter.GetBytes(roomnumber));
+                    }
 
                 }
                 catch (Exception e)
