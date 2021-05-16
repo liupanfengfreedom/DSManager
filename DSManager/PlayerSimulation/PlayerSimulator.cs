@@ -50,7 +50,9 @@ namespace DSManager
                         Logger.log("Sing up ok");
                         break;
                     case CMDPlayer.LOGIN:
-                        Logger.log("log in ok");
+                        int id = BitConverter.ToInt32(buffer, 1);
+                        string infor = Encoding.getstring(buffer,5,buffer.Length-5);
+                        Logger.log("log in ok ,id : "+id + "infor : " + infor);
                         break;
                     case CMDPlayer.CREATEROOM:
                         roomnumber = BitConverter.ToInt32(buffer, 1);
@@ -76,11 +78,16 @@ namespace DSManager
                          dswan = Encoding.getstring(buffer, 9, buffer.Length - 9);
                         Logger.log("MATCHREQUEST player : --side-- : " + side + "--dsport--" + dsport + "--dswan-- " + dswan);
                         break;
+                    case CMDPlayer.OTHERPLAYERINFOR:
+                        int playerid = BitConverter.ToInt32(buffer, 1);
+                        byte playerside = buffer[5];
+                        string playerinfor = Encoding.getstring(buffer,6,buffer.Length-6);
+                        Logger.log("OTHERPLAYERINFOR  otherplayerid : " + playerid + " playerside : " +(int) playerside + " playerinfor : " + playerinfor) ;
+                        break;
                     default:
                         break;
                 }
 #endif
-
             };
         }
         public void Begin()
@@ -101,7 +108,7 @@ namespace DSManager
                     if (bcreat)
                     {
                         send((byte)CMDPlayer.CREATEROOM, BitConverter.GetBytes(halfroomnumber));//here the halfroomnumber seem to be useless
-                        await Task.Delay(16000);
+                        await Task.Delay(26000);
                         send((byte)CMDPlayer.STARTGAME, BitConverter.GetBytes(roomnumber));
 
                     }

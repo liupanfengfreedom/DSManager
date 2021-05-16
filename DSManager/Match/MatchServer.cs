@@ -18,6 +18,7 @@ namespace DSManager
         JOINROOMFAILED,
         STARTGAME,
         PLAYEREXITQUEST,
+        OTHERPLAYERINFOR,
     }
     class MatchServer : luabase, Entity
     {

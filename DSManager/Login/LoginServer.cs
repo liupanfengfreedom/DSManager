@@ -143,6 +143,31 @@ namespace DSManager
                         Logger.log(" :playerexitquest");
 
                         break;
+                    case CMDMatchServer.OTHERPLAYERINFOR:
+                        playerid = BitConverter.ToInt32(buffer, 1);
+                        b = Players.TryGetValue(playerid, out player);
+                        if (b)
+                        {
+                            pi = new playerinfor();
+                            ms = new MemoryStream();
+                            ms.Write(buffer, 5, buffer.Length - 5);
+                            ms.Position = 0;
+                            pi = Serializer.Deserialize<playerinfor>(ms);
+                            byte[] otherinfor = Encoding.getbyte(pi.SimulateInforStr);
+                            byte[] t = new byte[otherinfor.Length+4+1];
+                            t.WriteTo(0,pi.playerid);
+                            t.WriteTo(4,pi.side);
+                            Array.Copy(otherinfor , 0 , t , 5 , otherinfor.Length);
+                            player.send((byte)CMDPlayer.OTHERPLAYERINFOR, t);
+                            Logger.log("--otherplayer.playerinfor-- : " + pi.SimulateInforStr + "--side-- : " + pi.side + "--dsport--" );
+                        }
+                        else
+                        {
+
+                        }
+                        Logger.log(" :playerexitquest");
+
+                        break;
                     default:
                         break;
                 }

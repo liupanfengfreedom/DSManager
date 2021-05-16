@@ -18,6 +18,7 @@ namespace DSManager
         JOINROOM,
         JOINROOMFAILED,
         STARTGAME,
+        OTHERPLAYERINFOR,
         EXITREQUEST,
     }
     class Player
@@ -66,9 +67,13 @@ namespace DSManager
                             simulateddata = RandomHelper.RandomNumber(1, 3);
                             playerinfor += simulateddata.ToString()+"???";
                         }
-////////////////////////////////////////////////////////////////////////////////////
+                        ////////////////////////////////////////////////////////////////////////////////////
                         //ack
-                        send((byte)CMDPlayer.LOGIN, Encoding.getbyte("hi"));
+                        byte[] infor = Encoding.getbyte(playerinfor);
+                        byte[] t = new byte[playerinfor.Length + 4];
+                        t.WriteTo(0, id);    
+                        Array.Copy(infor, 0, t, 4, infor.Length);
+                        send((byte)CMDPlayer.LOGIN, t);
                         break;
                     case CMDPlayer.MATCHREQUEST:
                         int halfroomnumber = BitConverter.ToInt32(buffer, 1);
@@ -91,6 +96,7 @@ namespace DSManager
                         {
                             playerid = id,
                             homeowner = true,
+                            SimulateInforStr = playerinfor,
                             halfroomnumber = BitConverter.ToInt32(buffer, 1),//here the halfroomnumber seem to be useless
                         };
                         ms = new MemoryStream();
@@ -104,6 +110,7 @@ namespace DSManager
                         {
                             playerid = id,
                             homeowner = false,
+                            SimulateInforStr = playerinfor,
                             roomnumber = BitConverter.ToInt32(buffer, 1),
                         };
                         ms = new MemoryStream();
