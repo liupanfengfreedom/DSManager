@@ -108,6 +108,8 @@
     <Compile Include="Base\RandomHelper.cs" />
     <Compile Include="Base\TimeHelper.cs" />
     <Compile Include="Base\Timer.cs" />
+    <Compile Include="BenchMark\BenchMark.cs" />
+    <Compile Include="BenchMark\LaunchApp.cs" />
     <Compile Include="DSManager\Launchserver.cs" />
     <Compile Include="Base\Entity.cs" />
     <Compile Include="LoadBalance\DSMproxy.cs" />

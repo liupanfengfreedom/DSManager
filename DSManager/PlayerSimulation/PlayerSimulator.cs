@@ -108,7 +108,7 @@ namespace DSManager
                     if (bcreat)
                     {
                         send((byte)CMDPlayer.CREATEROOM, BitConverter.GetBytes(halfroomnumber));//here the halfroomnumber seem to be useless
-                        await Task.Delay(26000);
+                        await Task.Delay(56000);
                         send((byte)CMDPlayer.STARTGAME, BitConverter.GetBytes(roomnumber));
 
                     }

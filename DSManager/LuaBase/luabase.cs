@@ -23,6 +23,7 @@ namespace DSManager.LuaBase
        public luabase(String luafile)
         {
             state["this"] = this;
+            state.LoadCLRPackage();
             state.DoString(File.ReadAllText("./Lua/"+luafile+".lua"));
         }
         public void csharpprint(string str)
