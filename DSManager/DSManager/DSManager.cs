@@ -130,13 +130,6 @@ namespace DSManager
             {
                 return;
             }
-            ManagementObjectSearcher searcher = new ManagementObjectSearcher
-                    ("Select * From Win32_Process Where ParentProcessID=" + pid);
-            ManagementObjectCollection moc = searcher.Get();
-            foreach (ManagementObject mo in moc)
-            {
-                KillProcessAndChildren(Convert.ToInt32(mo["ProcessID"]));
-            }
             try
             {
                 Process proc = Process.GetProcessById(pid);
@@ -146,6 +139,14 @@ namespace DSManager
             {
                 // Process already exited.
             }
+            ManagementObjectSearcher searcher = new ManagementObjectSearcher
+                    ("Select * From Win32_Process Where ParentProcessID=" + pid);
+            ManagementObjectCollection moc = searcher.Get();
+            foreach (ManagementObject mo in moc)
+            {
+                KillProcessAndChildren(Convert.ToInt32(mo["ProcessID"]));
+            }
+
         }
     }
 

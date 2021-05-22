@@ -72,7 +72,7 @@ namespace DSManager
         ~KChannel()
         {
             //Console.WriteLine("~KChannel()");
-            window_file_log.Log("~KChannel()");
+            Logger.log("~KChannel()");
         }
         public void HandleAccept()//server do this
         {
@@ -104,8 +104,7 @@ namespace DSManager
                 cacheBytes.WriteTo(4, this.Id);
                 //Log.Debug($"client connect: {this.Conn}");
                 this.socket.Send(cacheBytes, 8, this.remoteEndPoint);
-                //Console.WriteLine("ping");
-                window_file_log.Log("ping");
+                //Logger.log("ping");
             }, "", PINGPERIOD * 1000, true);
             Global.GetComponent<Timer>().Add(th);
         }
@@ -159,17 +158,18 @@ namespace DSManager
         }
         void disconnect()
         {
-            kService.idChannels.Remove(Id);
+            KChannel outkc;
+            kService.idChannels.TryRemove(Id, out outkc);
             KChannel ch;
             kService.requestChannels.TryGetValue(requestConn, out ch);
             if (ch == this)
             { 
-                kService.requestChannels.Remove(requestConn);
+                kService.requestChannels.TryRemove(requestConn, out outkc);
                 //Console.WriteLine("kService.requestChannels.Count :" + kService.requestChannels.Count);
-                window_file_log.Log("kService.requestChannels.Count :" + kService.requestChannels.Count);
+                Logger.log("kService.requestChannels.Count :" + kService.requestChannels.Count);
             }
             //Console.WriteLine("kService.idChannels.Count :" + kService.idChannels.Count);
-            window_file_log.Log("kService.requestChannels.Count :" + kService.requestChannels.Count);
+            Logger.log("kService.requestChannels.Count :" + kService.requestChannels.Count);
             ondisconnect.Invoke();
         }
     }

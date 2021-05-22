@@ -41,7 +41,7 @@ namespace DSManager
                 int r = Int32.Parse(l1);
                 int r1 = Int32.Parse(l2);
                 int rr = r1 - r;
-                window_file_log.Log(rr.ToString());
+                Logger.log(rr.ToString());
                 //Console.WriteLine(str);
 #else
                 switch ((CMDPlayer)buffer[0])
@@ -108,7 +108,7 @@ namespace DSManager
                     if (bcreat)
                     {
                         send((byte)CMDPlayer.CREATEROOM, BitConverter.GetBytes(halfroomnumber));//here the halfroomnumber seem to be useless
-                        await Task.Delay(56000);
+                        await Task.Delay(1000);
                         send((byte)CMDPlayer.STARTGAME, BitConverter.GetBytes(roomnumber));
 
                     }

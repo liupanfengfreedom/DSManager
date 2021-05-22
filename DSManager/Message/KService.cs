@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -21,8 +22,8 @@ public	class KService
 		public OnAcceptAKchannel onAcceptAKchannel;
 		public uint TimeNow { get; set; }
 		private uint IdGenerater = 1000;
-		public readonly Dictionary<long, KChannel> idChannels = new Dictionary<long, KChannel>();
-		public readonly Dictionary<long, KChannel> requestChannels = new Dictionary<long, KChannel>();
+		public readonly ConcurrentDictionary<long, KChannel> idChannels = new ConcurrentDictionary<long, KChannel>();
+		public readonly ConcurrentDictionary<long, KChannel> requestChannels = new ConcurrentDictionary<long, KChannel>();
 		private UdpClient socket;
 		public KService(int port)//for server
 		{
@@ -121,7 +122,8 @@ public	class KService
 			{
 				if (requestChannels[requestConn].isConnected)
 				{
-					requestChannels.Remove(requestConn);
+					KChannel outkc;
+					requestChannels.TryRemove(requestConn, out outkc);
 					return;
 				}
 			}
@@ -133,8 +135,8 @@ public	class KService
 				}
 				while (idChannels.ContainsKey(newid));
 				KChannel channel = new KChannel(newid, requestConn,this.socket, udpReceiveResult.RemoteEndPoint,this);
-				requestChannels.Add(channel.requestConn, channel);
-				idChannels.Add(channel.Id, channel);
+				requestChannels.TryAdd(channel.requestConn, channel);
+				idChannels.TryAdd(channel.Id, channel);
 				onAcceptAKchannel.Invoke(ref channel);
 			}
 			requestChannels[requestConn].HandleAccept();
@@ -147,8 +149,9 @@ public	class KService
 			if (idChannels.ContainsKey(requestConn))
 			{
 				idChannels[requestConn].HandleConnnect(id);
-				idChannels.Add(id, idChannels[requestConn]);
-				idChannels.Remove(requestConn);
+				idChannels.TryAdd(id, idChannels[requestConn]);
+				KChannel outkc;
+				idChannels.TryRemove(requestConn, out outkc);
 			}
 			else
 			{ 
@@ -159,7 +162,7 @@ public	class KService
 			uint id = (uint)RandomHelper.RandomNumber(100, int.MaxValue);
 			//id = IdGenerater++;
 			KChannel channel = new KChannel(id, this.socket, remotserveripEndPoint);
-			idChannels.Add(channel.requestConn, channel);
+			idChannels.TryAdd(channel.requestConn, channel);
 			return channel;
 		}
 		private void HandleDisConnect(UdpReceiveResult udpReceiveResult)

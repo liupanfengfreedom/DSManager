@@ -48,13 +48,13 @@ namespace DSManager
                     myProcess.StartInfo.CreateNoWindow = true;
                     myProcess.Start();
                 }
-                window_file_log.Log("launch server at port: " + port);
+                Logger.log("launch server at port: " + port);
                 return new dsinfor(myProcess,port);
             }
             catch (Exception e)
             {
                 return null;
-                window_file_log.Log(e.Message);
+                Logger.log(e.Message);
             }
         }
          bool PortInUse(int port)

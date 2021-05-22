@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -168,9 +169,15 @@ namespace DSManager
     {
         static void Main(string[] args)
         {
-            String[] sperater = { "???" };
+            String[] sperater = {"???"};
             string str = "allss1???a2???a3???a4???";
             string[] arraystr = str.Split(sperater, StringSplitOptions.RemoveEmptyEntries);
+
+            Thread thread = Thread.CurrentThread;
+
+
+
+
             //int index = str.IndexOf("???", StringComparison.OrdinalIgnoreCase);
             //string str1 = str.Substring(0, index);
             //string strremain = str.Substring(index + 3);
@@ -179,17 +186,40 @@ namespace DSManager
             //DSMchannels.Add(1);
             //DSMchannels.Add(5);
             //DSMchannels.Sort((int d1, int d2) => { return d1 - d2; });
-
             Global.AddComponent<ServertoDS>();
             Global.AddComponent<DSClient>();
             Global.AddComponent<MatchServer>();
             Global.AddComponent<LoginServer>();
 
-            // Global.AddComponent<PlayerSimulator>();
+            //Global.AddComponent<PlayerSimulator>();
             //Global.AddComponent<BenchMark>();
             //Global.AddComponent<ct1>();
             //Global.AddComponent<ct>();
             //Global.AddComponent<ctest>();
+
+
+            //Process myProcess = new Process();
+            //{
+            //    myProcess.StartInfo.UseShellExecute = false;
+            //    myProcess.StartInfo.FileName = @"C:\Users\liu\Desktop\PlayerSimulator\Debug/DSManager.exe";// path; //apppath;
+            //    //myProcess.StartInfo.Arguments = "";
+            //    myProcess.StartInfo.CreateNoWindow = false;
+            //    myProcess.Start();
+            //}
+            //Task.Run(async () =>
+            //{
+            //    try
+            //    {
+            //        Logger.log("---------------------------");
+            //        Thread.Sleep(1000);
+            //        Logger.log("111111111111111111111111");
+
+            //    }
+            //    catch (Exception e)
+            //    {
+            //        Logger.log(e.ToString());
+            //    }
+            //});
             while (true)
             {
                 try

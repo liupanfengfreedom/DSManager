@@ -9,6 +9,8 @@ namespace DSManager
 {
     class RoomManager
     {
+        int lastroomid = 0;
+        int lastroomv1id = 0;
         static RoomManager roommanager=null;
         public ConcurrentDictionary<int, Room> waitingRooms { get; private set; }
         public ConcurrentDictionary<int, Room> fightingRooms { get; private set; }
@@ -79,8 +81,16 @@ namespace DSManager
         {
             int id;
             do {
-                id = RandomHelper.RandomNumber(int.MinValue, int.MaxValue);
+                //id = RandomHelper.RandomNumber(int.MinValue, int.MaxValue);
+                id = lastroomid++;
+                if (id == int.MaxValue)
+                {
+                    lastroomid = int.MinValue;
+                }
+
             } while (waitingRooms.ContainsKey(id) || fightingRooms.ContainsKey(id));
+
+
             Room room = new Room(id, halfroomnumber, rejectcondition);
             Logger.log("new room----------- : "+ id);
             waitingRooms.TryAdd(id, room);
@@ -92,7 +102,12 @@ namespace DSManager
             int id;
             do
             {
-                id = RandomHelper.RandomNumber(0,999);//for create room 
+               //id = RandomHelper.RandomNumber(0,5);//for create room 
+                id = lastroomv1id++;
+                if (id == int.MaxValue)
+                {
+                    lastroomv1id = int.MinValue;
+                }
             } while (CreatingRooms.ContainsKey(id));
             Room room = new Room(id, halfroomnumber);
             CreatingRooms.TryAdd(id, room);
