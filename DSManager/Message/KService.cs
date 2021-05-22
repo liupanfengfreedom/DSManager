@@ -209,8 +209,16 @@ public	class KService
                         this.TimeNow = (uint)TimeHelper.ClientNowSeconds();
                         for (int i = 0; i < idChannels.Values.Count; i++)
                         {
-                            idChannels.Values.ToArray()[i].Update(TimeNow);
-                        }
+							if (idChannels.Values.ToArray()[i].ispendingdestory)
+							{
+								KChannel outkc;
+								idChannels.TryRemove(idChannels.Values.ToArray()[i].Id, out outkc);
+							}
+							else
+							{ 
+							     idChannels.Values.ToArray()[i].Update(TimeNow);
+							}
+						}
                     }
                 }
                 catch (Exception e)

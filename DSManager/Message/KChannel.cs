@@ -21,6 +21,7 @@ namespace DSManager
         public uint requestConn { get; set; }
         private UdpClient socket;//local socket
         public bool isConnected { get; private set; }
+        public bool ispendingdestory { get; private set; }
         private IPEndPoint remoteEndPoint;
 		private Kcp kcp;
 		private KService kService;
@@ -42,12 +43,13 @@ namespace DSManager
             kcp.WndSize(64, 64);
             kcp.SetMtu(512);
             this.isConnected = true;
-
+            ispendingdestory = false;
             lastpingtime = (uint)TimeHelper.ClientNowSeconds();
             th = new Timerhandler((string s) =>
             {
                 if ((uint)TimeHelper.ClientNowSeconds() - lastpingtime > PINGPERIOD * 9)
                 {
+                    //System.GC.Collect();
                     th.kill = true;
                     disconnect();
                 }
@@ -158,8 +160,8 @@ namespace DSManager
         }
         void disconnect()
         {
-            KChannel outkc;
-            kService.idChannels.TryRemove(Id, out outkc);
+            ispendingdestory = true;
+			KChannel outkc;
             KChannel ch;
             kService.requestChannels.TryGetValue(requestConn, out ch);
             if (ch == this)
