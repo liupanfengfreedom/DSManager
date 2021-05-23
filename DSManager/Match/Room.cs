@@ -84,6 +84,33 @@ namespace DSManager
         }
         public void addplayer(playerinfor pi)
         {
+            foreach (var v in players)
+            {
+                LoginServerProxy lsp;
+                MatchServer.getsingleton().LoginServers.TryGetValue(pi.loginserverproxyid, out lsp);
+                MemoryStream ms = new MemoryStream();
+                Serializer.Serialize(ms, v.Value);
+                byte[] btms = ms.ToArray();
+                byte[] t = new byte[btms.Length + 4];
+                byte[] ownerid = BitConverter.GetBytes(pi.playerid);
+                Array.Copy(ownerid, 0, t, 0, 4);
+                Array.Copy(btms, 0, t, 4, btms.Length);
+                lsp.sendtologinserver((Byte)CMDMatchServer.OTHERPLAYERINFOR, t);
+            }
+            foreach (var v in players)
+            {
+                LoginServerProxy lsp;
+                MatchServer.getsingleton().LoginServers.TryGetValue(v.Value.loginserverproxyid, out lsp);
+                MemoryStream ms = new MemoryStream();
+                Serializer.Serialize(ms, pi);
+                byte[] btms = ms.ToArray();
+                byte[] t = new byte[btms.Length + 4];
+                byte[] ownerid = BitConverter.GetBytes(v.Value.playerid);
+                Array.Copy(ownerid, 0, t, 0, 4);
+                Array.Copy(btms, 0, t, 4, btms.Length);
+                lsp.sendtologinserver((Byte)CMDMatchServer.OTHERPLAYERINFOR, t);
+            }
+////////////////////
             if (players.Count >= halfroomnumber)
             {
                 pi.side = 1;

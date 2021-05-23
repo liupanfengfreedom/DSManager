@@ -104,21 +104,20 @@ namespace DSManager
                     send((byte)CMDPlayer.LOGIN, Encoding.getbyte(ts));
                     await Task.Delay(2000);
                     int halfroomnumber = 2;
-                    // send((byte)CMDPlayer.MATCHREQUEST, BitConverter.GetBytes(halfroomnumber));
-                    if (bcreat)
-                    {
-                        Logger.log("owner");
-                        send((byte)CMDPlayer.CREATEROOM, BitConverter.GetBytes(halfroomnumber));//here the halfroomnumber seem to be useless
-                        await Task.Delay(30000);
-                        send((byte)CMDPlayer.STARTGAME, BitConverter.GetBytes(roomnumber));
-
-                    }
-                    else
-                    {
-                        Logger.log("client");
-                        roomnumber = RandomHelper.RandomNumber(0, roomnumber);
-                        send((byte)CMDPlayer.JOINROOM, BitConverter.GetBytes(roomnumber));
-                    }
+                     send((byte)CMDPlayer.MATCHREQUEST, BitConverter.GetBytes(halfroomnumber));
+                    //if (bcreat)
+                    //{
+                    //    Logger.log("owner");
+                    //    send((byte)CMDPlayer.CREATEROOM, BitConverter.GetBytes(halfroomnumber));//here the halfroomnumber seem to be useless
+                    //    await Task.Delay(30000);
+                    //    send((byte)CMDPlayer.STARTGAME, BitConverter.GetBytes(roomnumber));
+                    //}
+                    //else
+                    //{
+                    //    Logger.log("client");
+                    //    roomnumber = RandomHelper.RandomNumber(0, roomnumber);
+                    //    send((byte)CMDPlayer.JOINROOM, BitConverter.GetBytes(roomnumber));
+                    //}
 
                 }
                 catch (Exception e)
