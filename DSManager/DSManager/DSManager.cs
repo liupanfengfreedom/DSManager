@@ -11,10 +11,12 @@ namespace DSManager
     class DSManager
     {
         Dictionary<int,dsinfor> dss;
+        Dictionary<int,dsinfor> dssV1;
         Launchserver LS;
         static DSManager dsm=null;
         public DSManager() {
             dss = new Dictionary<int, dsinfor>();
+            dssV1 = new Dictionary<int, dsinfor>();
             LS = new Launchserver();
         }
          ~DSManager() {
@@ -53,6 +55,32 @@ namespace DSManager
             Logger.log("create" + ds.process.Id);
             return ds;
         }
+        public dsinfor LaunchADSV1(int id)
+        {
+            dsinfor ds = LS.CreateADSInstance();
+            if (ds == null)
+            {
+
+            }
+            else
+            {
+                dssV1.Add(id, ds);
+                //Console.WriteLine("d.ProcessName: " + ds.ProcessName);
+                //Console.WriteLine("d.Id: " + ds.Id);
+                ds.process.Disposed += (object sender, EventArgs e) =>
+                {
+                    //Console.Write("Disposed");
+                    Logger.log("Disposed" + ds.process.Id);
+                };
+                ds.process.Exited += (object sender, EventArgs e) =>
+                {
+                    //Console.Write("exit");
+                    Logger.log("exit" + ds.process.Id);
+                };
+            }
+            Logger.log("create" + ds.process.Id);
+            return ds;
+        }
         public void killds(int id)
         {
             if (dss.ContainsKey(id))
@@ -62,6 +90,17 @@ namespace DSManager
                     KillProcessAndChildren(dss[id].process.Id);
                 }
                 dss.Remove(id);
+            }
+        }
+        public void killdsV1(int id)
+        {
+            if (dssV1.ContainsKey(id))
+            {
+                if (dssV1[id].process != null && !dssV1[id].process.HasExited)
+                {
+                    KillProcessAndChildren(dssV1[id].process.Id);
+                }
+                dssV1.Remove(id);
             }
         }
         public void cleardss()
@@ -74,6 +113,15 @@ namespace DSManager
                 }
             }
             dss.Clear();
+
+            foreach (var d in dssV1)
+            {
+                if (d.Value != null && !d.Value.process.HasExited)
+                {
+                    KillProcessAndChildren(d.Value.process.Id);
+                }
+            }
+            dssV1.Clear();
         }
         private  void KillProcessAndChildren(int pid)
         {
@@ -81,13 +129,6 @@ namespace DSManager
             if (pid == 0)
             {
                 return;
-            }
-            ManagementObjectSearcher searcher = new ManagementObjectSearcher
-                    ("Select * From Win32_Process Where ParentProcessID=" + pid);
-            ManagementObjectCollection moc = searcher.Get();
-            foreach (ManagementObject mo in moc)
-            {
-                KillProcessAndChildren(Convert.ToInt32(mo["ProcessID"]));
             }
             try
             {
@@ -98,6 +139,14 @@ namespace DSManager
             {
                 // Process already exited.
             }
+            ManagementObjectSearcher searcher = new ManagementObjectSearcher
+                    ("Select * From Win32_Process Where ParentProcessID=" + pid);
+            ManagementObjectCollection moc = searcher.Get();
+            foreach (ManagementObject mo in moc)
+            {
+                KillProcessAndChildren(Convert.ToInt32(mo["ProcessID"]));
+            }
+
         }
     }
 

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
@@ -8,6 +9,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DSManager.LuaBase;
+using MongoDB.Bson;
+using MongoDB.Driver;
 using NLua;
 using ProtoBuf;
 
@@ -168,9 +171,69 @@ namespace DSManager
     {
         static void Main(string[] args)
         {
-            String[] sperater = { "???" };
+            String[] sperater = {"???"};
             string str = "allss1???a2???a3???a4???";
             string[] arraystr = str.Split(sperater, StringSplitOptions.RemoveEmptyEntries);
+
+            Thread thread = Thread.CurrentThread;
+
+            //            DataBase db = Global.GetComponent<DataBase>();
+            //            IMongoCollection<BsonDocument> userinforcollection = db.userinfocollectio;
+            //            String name = "12";
+            //            int age = 323;
+            //            var doc = new BsonDocument{
+            //                //{ "_id",8 },
+            //                { "v1", "dd" },
+            //                { "name", name },
+            //                { "age", age },
+            //                { "ename", new BsonDocument
+            //                    {
+            //                        { "firstname", name+"jiu" },
+            //                        { "lastname", "wu1" }
+            //                    }
+            //                }
+            //            };
+            //////////////////////////////
+            ///// add
+            //            //userinforcollection.InsertOne(doc);
+
+            //            var filter = Builders<BsonDocument>.Filter;
+            //            ////////////////////////////
+            //            /// find one
+            //            var doc0 = userinforcollection.Find(filter.Eq("age", 11)).FirstOrDefault();
+            //            if (doc0!=null)
+            //            {
+            //                Console.WriteLine(doc0);
+            //                Console.WriteLine(doc0["age"]);
+            //            }
+
+            //            ////////////////////////////
+            //            /// find all
+            //            var doc1 = userinforcollection.Find(filter.Eq("age", 11));
+            //            foreach (var v in doc1.ToList())
+            //            {
+            //                Console.WriteLine(v);
+            //                Console.WriteLine(v["ename"]["firstname"]);
+            //                Console.WriteLine(v["age"]);
+            //            }
+            //            ////////////////////////////
+            //            /// update one
+            //            //var update = Builders<BsonDocument>.Update.Set("age", 12).Set("name", "aaS");
+            //            //userinforcollection.UpdateOne(filter.Eq("age", 11), update);
+            //            ////////////////////////////
+            //            /// update all
+            //            var update1 = Builders<BsonDocument>.Update.Set("age", 12).Set("name", "aaS");
+            //            userinforcollection.UpdateMany(filter.Eq("age", 11), update1);
+            //            ////////////////////////////
+            //            /// delete one
+            //            //userinforcollection.DeleteOne(filter.Eq("name","12"));
+
+            //            ////////////////////////////
+            //            /// delete all
+            //            userinforcollection.DeleteMany(filter.Eq("name", "12"));
+
+
+
             //int index = str.IndexOf("???", StringComparison.OrdinalIgnoreCase);
             //string str1 = str.Substring(0, index);
             //string strremain = str.Substring(index + 3);
@@ -179,16 +242,40 @@ namespace DSManager
             //DSMchannels.Add(1);
             //DSMchannels.Add(5);
             //DSMchannels.Sort((int d1, int d2) => { return d1 - d2; });
-
             Global.AddComponent<ServertoDS>();
             Global.AddComponent<DSClient>();
             Global.AddComponent<MatchServer>();
             Global.AddComponent<LoginServer>();
 
             //Global.AddComponent<PlayerSimulator>();
+            //Global.AddComponent<BenchMark>();
             //Global.AddComponent<ct1>();
             //Global.AddComponent<ct>();
             //Global.AddComponent<ctest>();
+
+
+            //Process myProcess = new Process();
+            //{
+            //    myProcess.StartInfo.UseShellExecute = false;
+            //    myProcess.StartInfo.FileName = @"C:\Users\liu\Desktop\PlayerSimulator\Debug/DSManager.exe";// path; //apppath;
+            //    //myProcess.StartInfo.Arguments = "";
+            //    myProcess.StartInfo.CreateNoWindow = false;
+            //    myProcess.Start();
+            //}
+            //Task.Run(async () =>
+            //{
+            //    try
+            //    {
+            //        Logger.log("---------------------------");
+            //        Thread.Sleep(1000);
+            //        Logger.log("111111111111111111111111");
+
+            //    }
+            //    catch (Exception e)
+            //    {
+            //        Logger.log(e.ToString());
+            //    }
+            //});
             while (true)
             {
                 try

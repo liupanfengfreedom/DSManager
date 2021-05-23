@@ -9,6 +9,8 @@ namespace DSManager
 {
     class RoomManager
     {
+        int lastroomid = 0;
+        int lastroomv1id = 0;
         static RoomManager roommanager=null;
         public ConcurrentDictionary<int, Room> waitingRooms { get; private set; }
         public ConcurrentDictionary<int, Room> fightingRooms { get; private set; }
@@ -39,6 +41,26 @@ namespace DSManager
                                 fightingRooms.TryRemove(v.Key,out room);
                             }
                         }
+                        //////////////////////////////////////////////////////////////////////////////
+                        foreach (var v in CreatedRooms)
+                        {
+                            int number = v.Value.NumberOfOnlinePlayers();
+                            if (number == 0)
+                            {
+                                MatchServer.getsingleton().sendtoloadbalanceserver((byte)CMDLoadBalanceServer.DESTROYV1, BitConverter.GetBytes(v.Key));
+                                Room room;
+                                CreatedRooms.TryRemove(v.Key, out room);
+                            }
+                        }
+                        foreach (var v in CreatingRooms)
+                        {
+                            int number = v.Value.NumberOfOnlinePlayers();
+                            if (number == 0)
+                            {
+                                Room room;
+                                CreatingRooms.TryRemove(v.Key, out room);
+                            }
+                        }
                     }
                 }
                 catch (Exception e)
@@ -59,8 +81,16 @@ namespace DSManager
         {
             int id;
             do {
-                id = RandomHelper.RandomNumber(int.MinValue, int.MaxValue);
+                //id = RandomHelper.RandomNumber(int.MinValue, int.MaxValue);
+                id = lastroomid++;
+                if (id == int.MaxValue)
+                {
+                    lastroomid = int.MinValue;
+                }
+
             } while (waitingRooms.ContainsKey(id) || fightingRooms.ContainsKey(id));
+
+
             Room room = new Room(id, halfroomnumber, rejectcondition);
             Logger.log("new room----------- : "+ id);
             waitingRooms.TryAdd(id, room);
@@ -72,7 +102,12 @@ namespace DSManager
             int id;
             do
             {
-                id = RandomHelper.RandomNumber(0,999);
+               //id = RandomHelper.RandomNumber(0,5);//for create room 
+                id = lastroomv1id++;
+                if (id == int.MaxValue)
+                {
+                    lastroomv1id = int.MinValue;
+                }
             } while (CreatingRooms.ContainsKey(id));
             Room room = new Room(id, halfroomnumber);
             CreatingRooms.TryAdd(id, room);
@@ -96,6 +131,27 @@ namespace DSManager
             { 
                 Logger.log("this should not happen  error here: waitingtofighting(int id)");
             }
+        }
+        public int creatingtocreated(int id)
+        {
+            Room room;
+            if (CreatingRooms.TryGetValue(id, out room))
+            {
+                CreatingRooms.TryRemove(id, out room);
+                //int id;
+                do
+                {
+                    id = RandomHelper.RandomNumber(int.MinValue, int.MaxValue);//for CreatedRooms 
+                } while (CreatedRooms.ContainsKey(id));
+                room.changeid(id);
+                CreatedRooms.TryAdd(id, room);
+                return id;
+            }
+            else
+            {
+                Logger.log("this should not happen  error here: waitingtofighting(int id)");
+            }
+            return 0;
         }
     }
 }

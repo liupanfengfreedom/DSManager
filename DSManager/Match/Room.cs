@@ -1,6 +1,8 @@
-﻿using System;
+﻿using ProtoBuf;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -36,13 +38,79 @@ namespace DSManager
             this.halfroomnumber = halfroomnumber;
         }
         public void addplayerv1(playerinfor pi)
-        { 
+        {
+            foreach (var v in players)
+            {
+                LoginServerProxy lsp;
+                MatchServer.getsingleton().LoginServers.TryGetValue(pi.loginserverproxyid, out lsp);
+                MemoryStream ms = new MemoryStream();
+                Serializer.Serialize(ms, v.Value);
+                byte[] btms = ms.ToArray();
+                byte[] t = new byte[btms.Length + 4];
+                byte[] ownerid = BitConverter.GetBytes(pi.playerid);
+                Array.Copy(ownerid, 0, t, 0, 4);
+                Array.Copy(btms, 0, t, 4, btms.Length);
+                lsp.sendtologinserver((Byte)CMDMatchServer.OTHERPLAYERINFOR, t);
+            }
+            foreach (var v in players)
+            {
+                LoginServerProxy lsp;
+                MatchServer.getsingleton().LoginServers.TryGetValue(v.Value.loginserverproxyid, out lsp);
+                MemoryStream ms = new MemoryStream();
+                Serializer.Serialize(ms, pi);
+                byte[] btms = ms.ToArray();
+                byte[] t = new byte[btms.Length + 4];
+                byte[] ownerid = BitConverter.GetBytes(v.Value.playerid);
+                Array.Copy(ownerid, 0, t, 0, 4);
+                Array.Copy(btms, 0, t, 4, btms.Length);
+                lsp.sendtologinserver((Byte)CMDMatchServer.OTHERPLAYERINFOR, t);
+            }
             players.TryAdd(pi.playerid, pi);
             Logger.log("roomid : "+ id+" number of players :" + players.Count);
+            //if (players.Count == halfroomnumber)
+            //{ 
+            //}         
+        }
+        public void startgame()
+        { 
+            int newid = RoomManager.getsingleton().creatingtocreated(id);
+            MatchServer.getsingleton().sendtoloadbalanceserver((byte)CMDLoadBalanceServer.CREATEDSV1, BitConverter.GetBytes(newid));
+            Logger.log("startgame() create room =================================================== newid : " + newid + " id :"+ id);
 
+        }
+        public void changeid(int id)
+        {
+            this.id = id;
         }
         public void addplayer(playerinfor pi)
         {
+            foreach (var v in players)
+            {
+                LoginServerProxy lsp;
+                MatchServer.getsingleton().LoginServers.TryGetValue(pi.loginserverproxyid, out lsp);
+                MemoryStream ms = new MemoryStream();
+                Serializer.Serialize(ms, v.Value);
+                byte[] btms = ms.ToArray();
+                byte[] t = new byte[btms.Length + 4];
+                byte[] ownerid = BitConverter.GetBytes(pi.playerid);
+                Array.Copy(ownerid, 0, t, 0, 4);
+                Array.Copy(btms, 0, t, 4, btms.Length);
+                lsp.sendtologinserver((Byte)CMDMatchServer.OTHERPLAYERINFOR, t);
+            }
+            foreach (var v in players)
+            {
+                LoginServerProxy lsp;
+                MatchServer.getsingleton().LoginServers.TryGetValue(v.Value.loginserverproxyid, out lsp);
+                MemoryStream ms = new MemoryStream();
+                Serializer.Serialize(ms, pi);
+                byte[] btms = ms.ToArray();
+                byte[] t = new byte[btms.Length + 4];
+                byte[] ownerid = BitConverter.GetBytes(v.Value.playerid);
+                Array.Copy(ownerid, 0, t, 0, 4);
+                Array.Copy(btms, 0, t, 4, btms.Length);
+                lsp.sendtologinserver((Byte)CMDMatchServer.OTHERPLAYERINFOR, t);
+            }
+////////////////////
             if (players.Count >= halfroomnumber)
             {
                 pi.side = 1;

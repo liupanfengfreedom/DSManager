@@ -41,7 +41,7 @@ namespace DSManager
                 int r = Int32.Parse(l1);
                 int r1 = Int32.Parse(l2);
                 int rr = r1 - r;
-                window_file_log.Log(rr.ToString());
+                Logger.log(rr.ToString());
                 //Console.WriteLine(str);
 #else
                 switch ((CMDPlayer)buffer[0])
@@ -50,26 +50,44 @@ namespace DSManager
                         Logger.log("Sing up ok");
                         break;
                     case CMDPlayer.LOGIN:
-                        Logger.log("log in ok");
+                        int id = BitConverter.ToInt32(buffer, 1);
+                        string infor = Encoding.getstring(buffer,5,buffer.Length-5);
+                        Logger.log("log in ok ,id : "+id + "infor : " + infor);
                         break;
                     case CMDPlayer.CREATEROOM:
-                        int roomnumber = BitConverter.ToInt32(buffer, 1);
+                        roomnumber = BitConverter.ToInt32(buffer, 1);
                         Logger.log("creatroom : "+ roomnumber);
                         break;
                     case CMDPlayer.JOINROOM:
-                        Logger.log("log in ok");
+                        roomnumber = BitConverter.ToInt32(buffer, 1);
+                        Logger.log("joinroom : " + roomnumber);
                         break;
-                    case CMDPlayer.MATCHREQUEST:
+                    case CMDPlayer.JOINROOMFAILED:
+                        roomnumber = BitConverter.ToInt32(buffer, 1);
+                        Logger.log("joinroom failed: " + roomnumber);
+                        break;
+                    case CMDPlayer.STARTGAME:
                         int side = BitConverter.ToInt32(buffer, 1);
                         int dsport = BitConverter.ToInt32(buffer, 5);
                         string dswan = Encoding.getstring(buffer, 9, buffer.Length - 9);
-                        Logger.log("player : --side-- : " + side + "--dsport--" + dsport + "--dswan-- " + dswan);
+                        Logger.log("STARTGAME player : --side-- : " + side + "--dsport--" + dsport + "--dswan-- " + dswan);
+                        break;
+                    case CMDPlayer.MATCHREQUEST:
+                         side = BitConverter.ToInt32(buffer, 1);
+                         dsport = BitConverter.ToInt32(buffer, 5);
+                         dswan = Encoding.getstring(buffer, 9, buffer.Length - 9);
+                        Logger.log("MATCHREQUEST player : --side-- : " + side + "--dsport--" + dsport + "--dswan-- " + dswan);
+                        break;
+                    case CMDPlayer.OTHERPLAYERINFOR:
+                        int playerid = BitConverter.ToInt32(buffer, 1);
+                        byte playerside = buffer[5];
+                        string playerinfor = Encoding.getstring(buffer,6,buffer.Length-6);
+                        Logger.log("OTHERPLAYERINFOR  otherplayerid : " + playerid + " playerside : " +(int) playerside + " playerinfor : " + playerinfor) ;
                         break;
                     default:
                         break;
                 }
 #endif
-
             };
         }
         public void Begin()
@@ -86,13 +104,18 @@ namespace DSManager
                     send((byte)CMDPlayer.LOGIN, Encoding.getbyte(ts));
                     await Task.Delay(2000);
                     int halfroomnumber = 2;
-                    send((byte)CMDPlayer.MATCHREQUEST, BitConverter.GetBytes(halfroomnumber));
+                     send((byte)CMDPlayer.MATCHREQUEST, BitConverter.GetBytes(halfroomnumber));
                     //if (bcreat)
                     //{
-                    //    send((byte)CMDPlayer.CREATEROOM, BitConverter.GetBytes(halfroomnumber));
+                    //    Logger.log("owner");
+                    //    send((byte)CMDPlayer.CREATEROOM, BitConverter.GetBytes(halfroomnumber));//here the halfroomnumber seem to be useless
+                    //    await Task.Delay(30000);
+                    //    send((byte)CMDPlayer.STARTGAME, BitConverter.GetBytes(roomnumber));
                     //}
                     //else
                     //{
+                    //    Logger.log("client");
+                    //    roomnumber = RandomHelper.RandomNumber(0, roomnumber);
                     //    send((byte)CMDPlayer.JOINROOM, BitConverter.GetBytes(roomnumber));
                     //}
 

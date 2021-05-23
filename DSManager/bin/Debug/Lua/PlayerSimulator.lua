@@ -7,6 +7,6 @@ remoteserver={--Load-balancing server
 }
 roominfor = {
     bcreat = true,
-    roomnumber = 0
+    roomnumber = 0,
 }
 testmessage = "user:xiaoxiao??password:123"

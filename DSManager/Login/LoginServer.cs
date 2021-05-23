@@ -79,19 +79,92 @@ namespace DSManager
                         {
 
                         }
-
-
-
-
-
                         break;
                     case CMDMatchServer.JOINROOM:
+                        pi = new playerinfor();
+                        ms = new MemoryStream();
+                        ms.Write(buffer, 1, buffer.Length - 1);
+                        ms.Position = 0;
+                        pi = Serializer.Deserialize<playerinfor>(ms);
+                        b = Players.TryGetValue(pi.playerid, out player);
+                        if (b)
+                        {
+                            player.send((byte)CMDPlayer.JOINROOM, BitConverter.GetBytes(pi.roomnumber));
+                            Logger.log(pi.roomnumber + " :pi.roomnumber :joinroom");
+                        }
+                        else
+                        {
 
+                        }
+                        Logger.log(" :joinroom");
+
+                        break;
+                    case CMDMatchServer.JOINROOMFAILED:
+                        pi = new playerinfor();
+                        ms = new MemoryStream();
+                        ms.Write(buffer, 1, buffer.Length - 1);
+                        ms.Position = 0;
+                        pi = Serializer.Deserialize<playerinfor>(ms);
+                        b = Players.TryGetValue(pi.playerid, out player);
+                        if (b)
+                        {
+                            player.send((byte)CMDPlayer.JOINROOMFAILED, BitConverter.GetBytes(pi.roomnumber));
+                            Logger.log(pi.roomnumber + " JOINROOMFAILED");
+                        }
+                        else
+                        {
+
+                        }
+                        Logger.log(" :joinroom");
+
+                        break;
+                    case CMDMatchServer.STARTGAME:
+                        playerid = BitConverter.ToInt32(buffer, 1);
+                        b = Players.TryGetValue(playerid, out player);
+                        if (b)
+                        {
+                            int side = BitConverter.ToInt32(buffer, 5);
+                            int dsport = BitConverter.ToInt32(buffer, 9);
+                            string dswan = Encoding.getstring(buffer, 13, buffer.Length - 13);
+                            byte[] tempbuffer = new byte[buffer.Length - 5];
+                            Array.Copy(buffer, 5, tempbuffer, 0, tempbuffer.Length);
+                            player.send((byte)CMDPlayer.STARTGAME, tempbuffer);
+                            Logger.log("--player.playerinfor-- : " + player.playerinfor + "--side-- : " + side + "--dsport--" + dsport + "--dswan-- " + dswan);
+                        }
+                        else
+                        {
+
+                        }
                         Logger.log(" :joinroom");
 
                         break;
                     case CMDMatchServer.PLAYEREXITQUEST:
       
+                        Logger.log(" :playerexitquest");
+
+                        break;
+                    case CMDMatchServer.OTHERPLAYERINFOR:
+                        playerid = BitConverter.ToInt32(buffer, 1);
+                        b = Players.TryGetValue(playerid, out player);
+                        if (b)
+                        {
+                            pi = new playerinfor();
+                            ms = new MemoryStream();
+                            ms.Write(buffer, 5, buffer.Length - 5);
+                            ms.Position = 0;
+                            pi = Serializer.Deserialize<playerinfor>(ms);
+                            byte[] otherinfor = Encoding.getbyte(pi.SimulateInforStr);
+                            byte[] t = new byte[otherinfor.Length+4+1];
+                            t.WriteTo(0,pi.playerid);
+                            t.WriteTo(4,pi.side);
+                            Array.Copy(otherinfor , 0 , t , 5 , otherinfor.Length);
+                            player.send((byte)CMDPlayer.OTHERPLAYERINFOR, t);
+                            Logger.log("--otherplayer.playerinfor-- : " + pi.SimulateInforStr + "--side-- : " + pi.side + "--dsport--" );
+                        }
+                        else
+                        {
+
+                        }
                         Logger.log(" :playerexitquest");
 
                         break;

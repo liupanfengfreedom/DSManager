@@ -21,6 +21,7 @@ namespace DSManager
         public uint requestConn { get; set; }
         private UdpClient socket;//local socket
         public bool isConnected { get; private set; }
+        public bool ispendingdestory { get; private set; }
         private IPEndPoint remoteEndPoint;
 		private Kcp kcp;
 		private KService kService;
@@ -42,12 +43,13 @@ namespace DSManager
             kcp.WndSize(64, 64);
             kcp.SetMtu(512);
             this.isConnected = true;
-
+            ispendingdestory = false;
             lastpingtime = (uint)TimeHelper.ClientNowSeconds();
             th = new Timerhandler((string s) =>
             {
                 if ((uint)TimeHelper.ClientNowSeconds() - lastpingtime > PINGPERIOD * 9)
                 {
+                    //System.GC.Collect();
                     th.kill = true;
                     disconnect();
                 }
@@ -72,7 +74,7 @@ namespace DSManager
         ~KChannel()
         {
             //Console.WriteLine("~KChannel()");
-            window_file_log.Log("~KChannel()");
+            Logger.log("~KChannel()");
         }
         public void HandleAccept()//server do this
         {
@@ -104,8 +106,7 @@ namespace DSManager
                 cacheBytes.WriteTo(4, this.Id);
                 //Log.Debug($"client connect: {this.Conn}");
                 this.socket.Send(cacheBytes, 8, this.remoteEndPoint);
-                //Console.WriteLine("ping");
-                window_file_log.Log("ping");
+                //Logger.log("ping");
             }, "", PINGPERIOD * 1000, true);
             Global.GetComponent<Timer>().Add(th);
         }
@@ -159,17 +160,18 @@ namespace DSManager
         }
         void disconnect()
         {
-            kService.idChannels.Remove(Id);
+            ispendingdestory = true;
+			KChannel outkc;
             KChannel ch;
             kService.requestChannels.TryGetValue(requestConn, out ch);
             if (ch == this)
             { 
-                kService.requestChannels.Remove(requestConn);
+                kService.requestChannels.TryRemove(requestConn, out outkc);
                 //Console.WriteLine("kService.requestChannels.Count :" + kService.requestChannels.Count);
-                window_file_log.Log("kService.requestChannels.Count :" + kService.requestChannels.Count);
+                Logger.log("kService.requestChannels.Count :" + kService.requestChannels.Count);
             }
             //Console.WriteLine("kService.idChannels.Count :" + kService.idChannels.Count);
-            window_file_log.Log("kService.requestChannels.Count :" + kService.requestChannels.Count);
+            Logger.log("kService.requestChannels.Count :" + kService.requestChannels.Count);
             ondisconnect.Invoke();
         }
     }
