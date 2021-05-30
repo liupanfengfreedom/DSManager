@@ -199,7 +199,7 @@ namespace DSManager
                         }
                         if (RoomManager.getsingleton().fightingRooms.TryGetValue(pi.roomid, out room))
                         {
-                            playerinfor p1 = room.getplayer(pi.oldplayerid);
+                            playerinfor p1 = room.removeplayer(pi.oldplayerid);
                             if (p1 == null)
                             { }
                             else
