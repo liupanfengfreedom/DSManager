@@ -51,7 +51,8 @@ namespace DSManager
                         {
                             int side = BitConverter.ToInt32(buffer, 5);
                             int dsport = BitConverter.ToInt32(buffer, 9);
-                            string dswan = Encoding.getstring(buffer, 13, buffer.Length - 13);
+                            int roomid = BitConverter.ToInt32(buffer, 13);
+                            string dswan = Encoding.getstring(buffer, 17, buffer.Length - 17);
                             byte[] tempbuffer = new byte[buffer.Length - 5];
                             Array.Copy(buffer, 5, tempbuffer, 0, tempbuffer.Length);
                             player.send((byte)CMDPlayer.MATCHREQUEST, tempbuffer);
@@ -125,7 +126,8 @@ namespace DSManager
                         {
                             int side = BitConverter.ToInt32(buffer, 5);
                             int dsport = BitConverter.ToInt32(buffer, 9);
-                            string dswan = Encoding.getstring(buffer, 13, buffer.Length - 13);
+                            int roomid = BitConverter.ToInt32(buffer, 13);
+                            string dswan = Encoding.getstring(buffer, 17, buffer.Length - 17);
                             byte[] tempbuffer = new byte[buffer.Length - 5];
                             Array.Copy(buffer, 5, tempbuffer, 0, tempbuffer.Length);
                             player.send((byte)CMDPlayer.STARTGAME, tempbuffer);
@@ -154,10 +156,11 @@ namespace DSManager
                             ms.Position = 0;
                             pi = Serializer.Deserialize<playerinfor>(ms);
                             byte[] otherinfor = Encoding.getbyte(pi.SimulateInforStr);
-                            byte[] t = new byte[otherinfor.Length+4+1];
+                            byte[] t = new byte[otherinfor.Length+12];
                             t.WriteTo(0,pi.playerid);
                             t.WriteTo(4,pi.side);
-                            Array.Copy(otherinfor , 0 , t , 5 , otherinfor.Length);
+                            t.WriteTo(8,pi.oldplayerid);
+                            Array.Copy(otherinfor , 0 , t , 12 , otherinfor.Length);
                             player.send((byte)CMDPlayer.OTHERPLAYERINFOR, t);
                             Logger.log("--otherplayer.playerinfor-- : " + pi.SimulateInforStr + "--side-- : " + pi.side + "--dsport--" );
                         }
@@ -167,6 +170,40 @@ namespace DSManager
                         }
                         Logger.log(" :playerexitquest");
 
+                        break;
+                    case CMDMatchServer.RECONNECT:
+                        playerid = BitConverter.ToInt32(buffer, 1);
+                        int result = BitConverter.ToInt32(buffer, 5);
+                        b = Players.TryGetValue(playerid, out player);
+                        byte[] byterosend = new byte[8];
+                        byterosend.WriteTo(0, playerid);
+                        byterosend.WriteTo(4, result);
+                        if (b)
+                        {      
+                            player.send((byte)CMDPlayer.RECONNECT, byterosend);
+                            Logger.log("--playerid-- : " + playerid + "--reconnect-- : " + result);
+                        }
+                        else
+                        {
+                            Logger.log("player id not exist ,this should not happen");
+                        }
+                        break;
+                    case CMDMatchServer.RECONNECTV1:
+                        playerid = BitConverter.ToInt32(buffer, 1);
+                        result = BitConverter.ToInt32(buffer, 5);
+                        b = Players.TryGetValue(playerid, out player);
+                        byterosend = new byte[8];
+                        byterosend.WriteTo(0, playerid);
+                        byterosend.WriteTo(4, result);
+                        if (b)
+                        {
+                            player.send((byte)CMDPlayer.RECONNECT, byterosend);
+                            Logger.log("--playerid-- : " + playerid + "--reconnect-- : " + result);
+                        }
+                        else
+                        {
+                            Logger.log("player id not exist ,this should not happen");
+                        }
                         break;
                     default:
                         break;

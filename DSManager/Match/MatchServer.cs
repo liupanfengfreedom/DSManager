@@ -19,6 +19,8 @@ namespace DSManager
         STARTGAME,
         PLAYEREXITQUEST,
         OTHERPLAYERINFOR,
+        RECONNECT,
+        RECONNECTV1,
     }
     class MatchServer : luabase, Entity
     {
@@ -89,11 +91,12 @@ namespace DSManager
                             if (b)
                             {
                                 byte[] wanbytes = Encoding.getbyte(dswan);
-                                byte[] sumbuffer = new byte[12 + wanbytes.Length];
+                                byte[] sumbuffer = new byte[16 + wanbytes.Length];
                                 sumbuffer.WriteTo(0, v.playerid);
                                 sumbuffer.WriteTo(4, v.side);
                                 sumbuffer.WriteTo(8, dsport);
-                                Array.Copy(wanbytes, 0, sumbuffer, 12, wanbytes.Length);
+                                sumbuffer.WriteTo(12, roomid);
+                                Array.Copy(wanbytes, 0, sumbuffer, 16, wanbytes.Length);
                                 lsp.sendtologinserver((byte)CMDMatchServer.MATCHREQUEST, sumbuffer);
                             }
                             else
@@ -120,11 +123,12 @@ namespace DSManager
                             if (b)
                             {
                                 byte[] wanbytes = Encoding.getbyte(dswan);
-                                byte[] sumbuffer = new byte[12 + wanbytes.Length];
+                                byte[] sumbuffer = new byte[16 + wanbytes.Length];
                                 sumbuffer.WriteTo(0, v.playerid);
                                 sumbuffer.WriteTo(4, v.side);
                                 sumbuffer.WriteTo(8, dsport);
-                                Array.Copy(wanbytes, 0, sumbuffer, 12, wanbytes.Length);
+                                sumbuffer.WriteTo(12, roomid);
+                                Array.Copy(wanbytes, 0, sumbuffer, 16, wanbytes.Length);
                                 lsp.sendtologinserver((byte)CMDMatchServer.STARTGAME, sumbuffer);
                             }
                             else
@@ -154,6 +158,16 @@ namespace DSManager
                 Logger.log("the same key already in matchpool");
             }
         }
+        public void onlyaddtomatchpool(playerinfor player)
+        {
+            bool b = matchpool.TryAdd(player.playerid, player);
+            if (b)
+            { }
+            else
+            {
+                Logger.log("the same key already in matchpool");
+            }
+        }
         public void addtomatchpoolV1(playerinfor player)
         {       
             bool b = matchpool.TryAdd(player.playerid, player);
@@ -164,7 +178,7 @@ namespace DSManager
                 Logger.log("the same key already in matchpool");
             }
         }
-        public void removefrompool(int id)
+        public void removefrommatchpool(int id)
         {
             playerinfor player;
             bool b = matchpool.TryRemove(id,out player);

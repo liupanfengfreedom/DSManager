@@ -20,6 +20,8 @@ namespace DSManager
         STARTGAME,
         OTHERPLAYERINFOR,
         EXITREQUEST,
+        RECONNECT,
+        RECONNECTV1,
     }
     class Player
     {
@@ -34,9 +36,8 @@ namespace DSManager
             this.loginserver = loginserver;
             this.channel.ondisconnect += () => {
                 Player v;
-                this.loginserver.Players.TryRemove(id,out v);
+                this.loginserver.Players.TryRemove(id, out v);
                 loginserver.sendtomatchserver((byte)CMDMatchServer.PLAYEREXITQUEST, BitConverter.GetBytes(id));
-
                 Logger.log(id + " :ondisconnect");
             };
             this.channel.onUserLevelReceivedCompleted += (ref byte[] buffer) =>
@@ -57,7 +58,7 @@ namespace DSManager
                     case CMDPlayer.LOGIN:
                         Logger.log("log in ");
                         var str = Encoding.getstring(buffer, 1, buffer.Length - 1);
-                        Logger.log(str);
+                        Logger.log(str);//username password ,these infor maybe used to query database
                         ////////////////////////////////////////////////////////////////////
                         //read data base
                         //simulate playerinfor
@@ -134,6 +135,65 @@ namespace DSManager
                         Logger.log("CMDPlayer.EXITREQUEST");
                         loginserver.sendtomatchserver((byte)CMDMatchServer.PLAYEREXITQUEST, BitConverter.GetBytes(id));
 
+                        break;
+                    /*
+                     server side : here may just for ios device when front_back switch this player will be die so replace it 
+                     client side : when front_back switch first check the connection to DS ,if it is connecting then do nothing ,if it is disconnect then reconnect to ds directly
+                     */
+                    case CMDPlayer.RECONNECT://
+                        Logger.log("CMDPlayer.RECONNECT");
+                        int id_ = BitConverter.ToInt32(buffer, 1);
+                        int roomid = BitConverter.ToInt32(buffer, 5);
+                        halfroomnumber = BitConverter.ToInt32(buffer, 9);
+                        str = Encoding.getstring(buffer,13, buffer.Length - 13);
+                        Logger.log(str);//username password ,these infor maybe used to query database
+                        ////////////////////////////////////////////////////////////////////
+                        //read data base
+                        //simulate playerinfor
+                        for (int i = 0; i < 2; i++)
+                        {
+                            simulateddata = RandomHelper.RandomNumber(1, 3);
+                            playerinfor += simulateddata.ToString() + "???";
+                        }
+                        playerinfor_ = new playerinfor
+                        {
+                            playerid = id,
+                            oldplayerid = id_,
+                            roomid = roomid,
+                            SimulateInforStr = playerinfor + halfroomnumber + "???",
+                            SimulateInforInt = 1234
+                        };
+                        ms = new MemoryStream();
+                        Serializer.Serialize(ms, playerinfor_);  
+                        loginserver.sendtomatchserver((byte)CMDMatchServer.RECONNECT, ms.ToArray());
+                        break;
+                    case CMDPlayer.RECONNECTV1://
+                        Logger.log("CMDPlayer.RECONNECT");
+                        id_ = BitConverter.ToInt32(buffer, 1);
+                        roomid = BitConverter.ToInt32(buffer, 5);
+                        int owner = BitConverter.ToInt32(buffer, 9);
+                        str = Encoding.getstring(buffer, 13, buffer.Length - 13);
+                        Logger.log(str);//username password ,these infor maybe used to query database
+                        ////////////////////////////////////////////////////////////////////
+                        //read data base
+                        //simulate playerinfor
+                        for (int i = 0; i < 2; i++)
+                        {
+                            simulateddata = RandomHelper.RandomNumber(1, 3);
+                            playerinfor += simulateddata.ToString() + "???";
+                        }
+                        playerinfor_ = new playerinfor
+                        {
+                            playerid = id,
+                            oldplayerid = id_,
+                            roomid = roomid,
+                            homeowner = owner==1? true : false,
+                            SimulateInforStr = playerinfor,
+                            SimulateInforInt = 1234
+                        };
+                        ms = new MemoryStream();
+                        Serializer.Serialize(ms, playerinfor_);
+                        loginserver.sendtomatchserver((byte)CMDMatchServer.RECONNECTV1, ms.ToArray());
                         break;
                     default:
                         break;

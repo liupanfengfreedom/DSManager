@@ -50,6 +50,7 @@ namespace DSManager
                                 MatchServer.getsingleton().sendtoloadbalanceserver((byte)CMDLoadBalanceServer.DESTROYV1, BitConverter.GetBytes(v.Key));
                                 Room room;
                                 CreatedRooms.TryRemove(v.Key, out room);
+                                Logger.log("matchserver tell loadbalance destory a room");
                             }
                         }
                         foreach (var v in CreatingRooms)

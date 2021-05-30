@@ -35,6 +35,10 @@ namespace DSManager
         /////////return infor
         [ProtoMember(9)]
         public byte side { get; set; }
+        [ProtoMember(10)]
+        public int oldplayerid { get; set; }
+        [ProtoMember(11)]
+        public int roomid { get; set; }
     }
     class LoginServerProxy
     {
@@ -65,13 +69,13 @@ namespace DSManager
                     case CMDMatchServer.MATCHREQUEST:
                         playerinfor pi = new playerinfor();
                         MemoryStream ms = new MemoryStream();
-                        ms.Write(buffer,1,buffer.Length-1);
+                        ms.Write(buffer, 1, buffer.Length - 1);
                         ms.Position = 0;
                         pi = Serializer.Deserialize<playerinfor>(ms);
                         pi.loginserverproxyid = this.id;
                         Logger.log(pi.SimulateInforStr);
                         matchserver.addtomatchpool(pi);
-                        Logger.log(pi.playerid+" :matchrequest");
+                        Logger.log(pi.playerid + " :matchrequest");
 
                         break;
                     case CMDMatchServer.CREATEROOM:
@@ -90,7 +94,7 @@ namespace DSManager
                         ms = new MemoryStream();
                         Serializer.Serialize(ms, pi);
                         sendtologinserver((byte)CMDMatchServer.CREATEROOM, ms.ToArray());
-                        Logger.log(pi.roomnumber + " :pi.roomnumber CREATEROOM ,pi.halfroomnumber : "+ pi.halfroomnumber);
+                        Logger.log(pi.roomnumber + " :pi.roomnumber CREATEROOM ,pi.halfroomnumber : " + pi.halfroomnumber);
                         break;
                     case CMDMatchServer.JOINROOM:
                         pi = new playerinfor();
@@ -112,11 +116,11 @@ namespace DSManager
                             Logger.log(pi.roomnumber + " :pi.roomnumber JOINROOM");
                         }
                         else
-                        {        
+                        {
                             ms = new MemoryStream();
                             Serializer.Serialize(ms, pi);
                             sendtologinserver((byte)CMDMatchServer.JOINROOMFAILED, ms.ToArray());
-                            Logger.log("join room but the room with specific number is not found ,this roomnumber is : "+ pi.roomnumber);
+                            Logger.log("join room but the room with specific number is not found ,this roomnumber is : " + pi.roomnumber);
                         }
 
 
@@ -132,7 +136,7 @@ namespace DSManager
                         if (RoomManager.getsingleton().CreatingRooms.TryGetValue(pi.roomnumber, out room))
                         {
                             Logger.log(pi.roomnumber + " :pi.roomnumber STARTGAME");
-                            room.startgame();           
+                            room.startgame();
                         }
                         else
                         {
@@ -143,9 +147,123 @@ namespace DSManager
                         break;
                     case CMDMatchServer.PLAYEREXITQUEST:
                         int playerid = BitConverter.ToInt32(buffer, 1);
-                        matchserver.removefrompool(playerid);
-                        Logger.log(id+" :playerexitquest");
+                        matchserver.removefrommatchpool(playerid);
+                        Logger.log("loginserverproxyid: " + id + " :playerexitquest playerid " + playerid);
 
+                        break;
+                    case CMDMatchServer.RECONNECT:
+
+                        pi = new playerinfor();
+                        ms = new MemoryStream();
+                        ms.Write(buffer, 1, buffer.Length - 1);
+                        ms.Position = 0;
+                        pi = Serializer.Deserialize<playerinfor>(ms);
+                        pi.loginserverproxyid = this.id;
+                        Logger.log("loginserverproxyid: " + id + " playerid RECONNECT:  " + pi.playerid);
+                        byte[] feedbackbuffer = new byte[8];
+                        feedbackbuffer.WriteTo(0, pi.playerid);
+                        Filter filter;
+                        if (Filter.Filtertracker.TryGetValue(pi.oldplayerid, out filter))
+                        {
+                            playerinfor p1;
+                            filter.players.TryRemove(pi.oldplayerid, out p1);
+                            if (p1 == null)
+                            { }
+                            else
+                            {
+                                matchserver.removefrommatchpool(pi.oldplayerid);
+                                matchserver.onlyaddtomatchpool(pi);
+                                filter.players.TryAdd(pi.playerid, pi);
+                                feedbackbuffer.WriteTo(4, 1);
+                                sendtologinserver((byte)CMDMatchServer.RECONNECT, feedbackbuffer);
+                                Logger.log("=========Filter.Filtertracker:   playerid :" + pi.playerid + "oldplayerid : " + pi.oldplayerid);
+                            }
+
+                            break;
+                        }
+                        if (RoomManager.getsingleton().waitingRooms.TryGetValue(pi.roomid, out room))
+                        {
+                            playerinfor p1 = room.removeplayer(pi.oldplayerid);//waitingrooms and fightingrooms may contain the same roomid but playid is Globally unique
+                            if (p1 == null)
+                            { }
+                            else
+                            {
+                                matchserver.removefrommatchpool(pi.oldplayerid);
+                                matchserver.onlyaddtomatchpool(pi);
+                                room.rejoin(pi);
+                                feedbackbuffer.WriteTo(4, 1);
+                                sendtologinserver((byte)CMDMatchServer.RECONNECT, feedbackbuffer);
+                                Logger.log("=========waitingRooms:   playerid :" + pi.playerid+"oldplayerid : " + pi.oldplayerid);
+                            }
+                            break;
+                        }
+                        if (RoomManager.getsingleton().fightingRooms.TryGetValue(pi.roomid, out room))
+                        {
+                            playerinfor p1 = room.getplayer(pi.oldplayerid);
+                            if (p1 == null)
+                            { }
+                            else
+                            {
+                                matchserver.removefrommatchpool(pi.oldplayerid);
+                                matchserver.onlyaddtomatchpool(pi);
+                                room.rejoin(pi);
+                                feedbackbuffer.WriteTo(4, 1);
+                                sendtologinserver((byte)CMDMatchServer.RECONNECT, feedbackbuffer);
+                                Logger.log("=========fightingRooms:   playerid :" + pi.playerid + "oldplayerid : " + pi.oldplayerid);
+                            }
+
+                            break;
+                        }
+
+                        feedbackbuffer.WriteTo(4, 0);
+                        sendtologinserver((byte)CMDMatchServer.RECONNECT, feedbackbuffer);
+                        Logger.log("=========failed:   playerid :" + pi.playerid+"oldplayerid : " + pi.oldplayerid);
+                        break;
+                    case CMDMatchServer.RECONNECTV1:
+
+                        pi = new playerinfor();
+                        ms = new MemoryStream();
+                        ms.Write(buffer, 1, buffer.Length - 1);
+                        ms.Position = 0;
+                        pi = Serializer.Deserialize<playerinfor>(ms);
+                        pi.loginserverproxyid = this.id;
+                        Logger.log("loginserverproxyid: " + id + " playerid RECONNECT:  " + pi.playerid);
+                        feedbackbuffer = new byte[8];
+                        feedbackbuffer.WriteTo(0, pi.playerid);
+                        if (RoomManager.getsingleton().CreatingRooms.TryGetValue(pi.roomid, out room))
+                        {
+                            playerinfor p1 = room.getplayer(pi.oldplayerid);
+                            if (p1 == null)
+                            { }
+                            else
+                            {
+                                matchserver.removefrommatchpool(pi.oldplayerid);
+                            }
+                            matchserver.onlyaddtomatchpool(pi);
+                            room.rejoin(pi);
+                            feedbackbuffer.WriteTo(4, 1);
+                            sendtologinserver((byte)CMDMatchServer.RECONNECTV1, feedbackbuffer);
+                            break;
+                        }
+   
+                        if (RoomManager.getsingleton().CreatedRooms.TryGetValue(pi.roomid, out room))
+                        {
+                            playerinfor p1 = room.getplayer(pi.oldplayerid);
+                            if (p1 == null)
+                            { }
+                            else
+                            {
+                                matchserver.removefrommatchpool(pi.oldplayerid);
+                            }
+                            matchserver.onlyaddtomatchpool(pi);
+                            room.rejoin(pi);
+                            feedbackbuffer.WriteTo(4, 1);
+                            sendtologinserver((byte)CMDMatchServer.RECONNECTV1, feedbackbuffer);
+                            break;
+                        }
+
+                        feedbackbuffer.WriteTo(4, 0);
+                        sendtologinserver((byte)CMDMatchServer.RECONNECT, feedbackbuffer);
                         break;
                     default:
                         break;

@@ -9,9 +9,10 @@ namespace DSManager
 {
     class Filter
     {
+        public static ConcurrentDictionary<int, Filter> Filtertracker = new ConcurrentDictionary<int, Filter>();
         public int halfroomnumber { get; private set; }
         private readonly object playersLock = new object();
-        ConcurrentDictionary<int, playerinfor> players = new ConcurrentDictionary<int, playerinfor>();
+        public ConcurrentDictionary<int, playerinfor> players = new ConcurrentDictionary<int, playerinfor>();
         ConcurrentDictionary<string, Filter> layers = new ConcurrentDictionary<string, Filter>();
         public void sort(string conditions,playerinfor pi)
         {
@@ -43,7 +44,9 @@ namespace DSManager
         {
             lock (playersLock)
             {
+                Filter filter;
                 players.TryAdd(pi.playerid, pi);
+                Filtertracker.TryAdd(pi.playerid, this);
                 if (players.Count == halfroomnumber)//when number of player in this filter is equal to Room.halfroomnumber then move these players to room *************
                 {
                     Logger.log("players.Count == Room.halfroomnumber : "+ halfroomnumber);
@@ -81,6 +84,7 @@ namespace DSManager
                     foreach (var v in players.Values)
                     {
                         room.addplayer(v);
+                        Filtertracker.TryRemove(v.playerid, out filter);
                     }
                     players.Clear();
                 }
@@ -96,6 +100,7 @@ namespace DSManager
                     await Task.Delay(System.TimeSpan.FromMilliseconds(Room.expiredtime));
                     lock (playersLock)
                     {
+                        Filter filter;
                         Logger.log("filter time expired");
                         if (players.Count == 0)
                         {
@@ -123,6 +128,7 @@ namespace DSManager
                         Room room = localgetroom(0, 0);
                         foreach (var v in players.Values)
                         {
+                            Filtertracker.TryRemove(v.playerid, out filter);
                             if (!room.isfull)
                             {
                                 room.addplayer(v);
