@@ -72,11 +72,13 @@ namespace DSManager
             //}         
         }
         public void startgame()
-        { 
-            int newid = RoomManager.getsingleton().creatingtocreated(id);
-            MatchServer.getsingleton().sendtoloadbalanceserver((byte)CMDLoadBalanceServer.CREATEDSV1, BitConverter.GetBytes(newid));
-            Logger.log("startgame() create room =================================================== newid : " + newid + " id :"+ id);
-
+        {
+            int newid;
+            if (RoomManager.getsingleton().creatingtocreated(id, out newid))
+            {
+                MatchServer.getsingleton().sendtoloadbalanceserver((byte)CMDLoadBalanceServer.CREATEDSV1, BitConverter.GetBytes(newid));
+                Logger.log("startgame() create room =================================================== newid : " + newid + " id :" + id);
+            }
         }
         public void changeid(int id)
         {

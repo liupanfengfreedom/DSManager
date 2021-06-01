@@ -149,10 +149,11 @@ namespace DSManager
 
         public void addtomatchpool(playerinfor player)
         {
-            filter.sort(player.SimulateInforStr, player);
             bool b = matchpool.TryAdd(player.playerid,player);
             if (b)
-            { }
+            { 
+                filter.sort(player.SimulateInforStr, player);
+            }
             else
             { 
                 Logger.log("the same key already in matchpool");

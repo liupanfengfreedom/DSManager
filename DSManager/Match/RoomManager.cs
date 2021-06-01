@@ -133,7 +133,7 @@ namespace DSManager
                 Logger.log("this should not happen  error here: waitingtofighting(int id)");
             }
         }
-        public int creatingtocreated(int id)
+        public bool creatingtocreated(int id,out int createdroomid)
         {
             Room room;
             if (CreatingRooms.TryGetValue(id, out room))
@@ -146,13 +146,15 @@ namespace DSManager
                 } while (CreatedRooms.ContainsKey(id));
                 room.changeid(id);
                 CreatedRooms.TryAdd(id, room);
-                return id;
+                createdroomid = id;
+                return true;
             }
             else
             {
                 Logger.log("this should not happen  error here: waitingtofighting(int id)");
+                createdroomid = 0;
+                return false;
             }
-            return 0;
         }
     }
 }
