@@ -168,7 +168,7 @@ namespace DSManager
                         loginserver.sendtomatchserver((byte)CMDMatchServer.RECONNECT, ms.ToArray());
                         break;
                     case CMDPlayer.RECONNECTV1://
-                        Logger.log("CMDPlayer.RECONNECT");
+                        Logger.log("CMDPlayer.RECONNECTv1");
                         id_ = BitConverter.ToInt32(buffer, 1);
                         roomid = BitConverter.ToInt32(buffer, 5);
                         int owner = BitConverter.ToInt32(buffer, 9);
