@@ -20,6 +20,7 @@ namespace DSManager
         STARTGAME,
         OTHERPLAYERINFOR,
         EXITREQUEST,
+        RECONNECTLOGIN,
         RECONNECT,
         RECONNECTV1,
     }
@@ -135,6 +136,19 @@ namespace DSManager
                         Logger.log("CMDPlayer.EXITREQUEST");
                         loginserver.sendtomatchserver((byte)CMDMatchServer.PLAYEREXITQUEST, BitConverter.GetBytes(id));
 
+                        break;
+                    case CMDPlayer.RECONNECTLOGIN://
+                        Logger.log("CMDPlayer.RECONNECTLOGIN");
+                        str = Encoding.getstring(buffer, 1, buffer.Length - 1);
+                        Logger.log(str);//username password ,these infor maybe used to query database
+                        ////////////////////////////////////////////////////////////////////
+                        //read data base
+                        //simulate playerinfor
+                        for (int i = 0; i < 2; i++)
+                        {
+                            simulateddata = RandomHelper.RandomNumber(1, 3);
+                            playerinfor += simulateddata.ToString() + "???";
+                        }
                         break;
                     /*
                      server side : here may just for ios device when front_back switch this player will be die so replace it 

@@ -241,7 +241,7 @@ namespace DSManager
             //DSMchannels.Add(9);
             //DSMchannels.Add(1);
             //DSMchannels.Add(5);
-            //DSMchannels.Sort((int d1, int d2) => { return d1 - d2; });
+            ////DSMchannels.Sort((int d1, int d2) => { return d1 - d2; });
             Global.AddComponent<ServertoDS>();
             Global.AddComponent<DSClient>();
             Global.AddComponent<MatchServer>();
