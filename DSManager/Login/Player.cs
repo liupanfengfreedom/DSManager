@@ -149,6 +149,7 @@ namespace DSManager
                             simulateddata = RandomHelper.RandomNumber(1, 3);
                             playerinfor += simulateddata.ToString() + "???";
                         }
+                        send((byte)CMDPlayer.RECONNECTLOGIN, BitConverter.GetBytes(id));
                         break;
                     /*
                      server side : here may just for ios device when front_back switch this player will be die so replace it 

@@ -242,12 +242,12 @@ namespace DSManager
             //DSMchannels.Add(1);
             //DSMchannels.Add(5);
             ////DSMchannels.Sort((int d1, int d2) => { return d1 - d2; });
-            Global.AddComponent<ServertoDS>();
-            Global.AddComponent<DSClient>();
-            Global.AddComponent<MatchServer>();
-            Global.AddComponent<LoginServer>();
+            //Global.AddComponent<ServertoDS>();
+            //Global.AddComponent<DSClient>();
+            //Global.AddComponent<MatchServer>();
+            //Global.AddComponent<LoginServer>();
 
-            //Global.AddComponent<PlayerSimulator>();
+            Global.AddComponent<PlayerSimulator>();
             //Global.AddComponent<BenchMark>();
             //Global.AddComponent<ct1>();
             //Global.AddComponent<ct>();

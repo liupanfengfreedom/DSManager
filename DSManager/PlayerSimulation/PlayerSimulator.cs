@@ -63,7 +63,7 @@ namespace DSManager
                         Logger.log("log in ok ,id : " + id + "infor : " + infor);
                         break;
                     case CMDPlayer.CREATEROOM:
-                        roomnumber = BitConverter.ToInt32(buffer, 1);
+                        roomid = roomnumber = BitConverter.ToInt32(buffer, 1);
                         Logger.log("creatroom : " + roomnumber);
                         break;
                     case CMDPlayer.JOINROOM:
@@ -95,10 +95,14 @@ namespace DSManager
                         string playerinfor = Encoding.getstring(buffer, 13, buffer.Length - 13);
                         Logger.log("OTHERPLAYERINFOR  otherplayerid : " + playerid + " otheroldplayerid : " + oldplayerid + " playerside : " + (int)playerside + " playerinfor : " + playerinfor);
                         break;
+                    case CMDPlayer.RECONNECTLOGIN:
+                        id = BitConverter.ToInt32(buffer, 1);
+                        Logger.log("RECONNECTLOGIN : ");
+                        break;
                     case CMDPlayer.RECONNECT:
                         id = BitConverter.ToInt32(buffer, 1);
                         int result = BitConverter.ToInt32(buffer, 5);
-                        Logger.log("RECONNECT : " + result );
+                        Logger.log("RECONNECT : " + result );//failed when disconnected happen  when the roomid created but has not received by the client,so the client should launch a rematch
                         break;
                     case CMDPlayer.RECONNECTV1:
                         id = BitConverter.ToInt32(buffer, 1);
@@ -126,149 +130,189 @@ namespace DSManager
                     }
                     ts += RandomHelper.RandomNumber(0, int.MaxValue);
                     send((byte)CMDPlayer.LOGIN, Encoding.getbyte(ts));
-                    await Task.Delay(1000);
-                    createchannel();
-                    while (!channel.isConnected)
+                    //await Task.Delay(1000);
+                    //createchannel();
+                    //while (!channel.isConnected)
+                    //{
+                    //    await Task.Delay(10);
+                    //}
+                    //send((byte)CMDPlayer.RECONNECTLOGIN, Encoding.getbyte(ts));
+                    //await Task.Delay(1000);
+                    //createchannel();
+                    //while (!channel.isConnected)
+                    //{
+                    //    await Task.Delay(10);
+                    //}
+                    //send((byte)CMDPlayer.RECONNECTLOGIN, Encoding.getbyte(ts));
+                    //await Task.Delay(1000);
+
+
+                    //send((byte)CMDPlayer.MATCHREQUEST, BitConverter.GetBytes(halfroomnumber));
+                    //await Task.Delay(1000);
+                    //createchannel();
+                    //while (!channel.isConnected)
+                    //{
+                    //    await Task.Delay(10);
+                    //}
+                    //byte[] strbytes = Encoding.getbyte(ts);
+                    //t = new byte[12+strbytes.Length];
+                    //t.WriteTo(0, id);
+                    //t.WriteTo(4, roomid);
+                    //t.WriteTo(8, halfroomnumber);
+                    //Array.Copy(strbytes, 0, t, 12, strbytes.Length);
+                    //send((byte)CMDPlayer.RECONNECT, t);
+                    //await Task.Delay(6000);
+                    //createchannel();
+                    //while (!channel.isConnected)
+                    //{
+                    //    await Task.Delay(10);
+                    //}
+                    //t.WriteTo(0, id);
+                    //t.WriteTo(4, roomid);
+                    //t.WriteTo(8, halfroomnumber);
+                    //send((byte)CMDPlayer.RECONNECT, t);
+                    //await Task.Delay(1000);
+
+                    //createchannel();
+                    //while (!channel.isConnected)
+                    //{
+                    //    await Task.Delay(10);
+                    //}
+                    //t = new byte[12];
+                    //t.WriteTo(0, id);
+                    //t.WriteTo(4, roomid);
+                    //t.WriteTo(8, halfroomnumber);
+
+                    //send((byte)CMDPlayer.RECONNECT, t);
+                    //await Task.Delay(2000);
+
+                    //createchannel();
+                    //while (!channel.isConnected)
+                    //{
+                    //    await Task.Delay(10);
+                    //}
+                    //t = new byte[12];
+                    //t.WriteTo(0, id);
+                    //t.WriteTo(4, roomid);
+                    //t.WriteTo(8, halfroomnumber);
+
+                    //send((byte)CMDPlayer.RECONNECT, t);
+
+
+                    //await Task.Delay(2000);
+
+                    //createchannel();
+                    //while (!channel.isConnected)
+                    //{
+                    //    await Task.Delay(10);
+                    //}
+                    //t = new byte[12];
+                    //t.WriteTo(0, id);
+                    //t.WriteTo(4, roomid);
+                    //t.WriteTo(8, halfroomnumber);
+
+                    //send((byte)CMDPlayer.RECONNECT, t);
+                    //await Task.Delay(2000);
+
+                    //createchannel();
+                    //while (!channel.isConnected)
+                    //{
+                    //    await Task.Delay(10);
+                    //}
+                    //t = new byte[12];
+                    //t.WriteTo(0, id);
+                    //t.WriteTo(4, roomid);
+                    //t.WriteTo(8, halfroomnumber);
+
+                    //send((byte)CMDPlayer.RECONNECT, t);
+
+
+                    if (bcreat)
                     {
-                        await Task.Delay(10);
+                        Logger.log("owner");
+                        send((byte)CMDPlayer.CREATEROOM, BitConverter.GetBytes(halfroomnumber));//here the halfroomnumber seem to be useless                      
+                        await Task.Delay(2000);
+                        createchannel();
+                        while (!channel.isConnected)
+                        {
+                            await Task.Delay(100);
+                        }
+                        t = new byte[12];
+                        t.WriteTo(0, id);
+                        t.WriteTo(4, roomid);
+                        t.WriteTo(8, bcreat ? 1 : 0);
+                        Logger.log("roomid" + roomid);
+                        send((byte)CMDPlayer.RECONNECTV1, t);
+                        await Task.Delay(3000);
+
+                        send((byte)CMDPlayer.STARTGAME, BitConverter.GetBytes(roomnumber));
+                        await Task.Delay(1000);
+                        createchannel();
+                        while (!channel.isConnected)
+                        {
+                            await Task.Delay(100);
+                        }
+                        t = new byte[12];
+                        t.WriteTo(0, id);
+                        t.WriteTo(4, roomid);
+                        t.WriteTo(8, bcreat ? 1 : 0);
+                        Logger.log("roomid" + roomid);
+                        send((byte)CMDPlayer.RECONNECTV1, t);
+                        await Task.Delay(1000);
+                        createchannel();
+                        while (!channel.isConnected)
+                        {
+                            await Task.Delay(100);
+                        }
+                        t = new byte[12];
+                        t.WriteTo(0, id);
+                        t.WriteTo(4, roomid);
+                        t.WriteTo(8, bcreat ? 1 : 0);
+                        Logger.log("roomid" + roomid);
+                        send((byte)CMDPlayer.RECONNECTV1, t);
                     }
-                    send((byte)CMDPlayer.RECONNECTLOGIN, Encoding.getbyte(ts));
-                    await Task.Delay(1000);
-                    createchannel();
-                    while (!channel.isConnected)
+                    else
                     {
-                        await Task.Delay(10);
+                        Logger.log("client");
+                        roomnumber = RandomHelper.RandomNumber(0, roomnumber);
+                        send((byte)CMDPlayer.JOINROOM, BitConverter.GetBytes(roomnumber));
+                        await Task.Delay(5000);
+                        createchannel();
+                        while (!channel.isConnected)
+                        {
+                            await Task.Delay(100);
+                        }
+                        t = new byte[12];
+                        t.WriteTo(0, id);
+                        t.WriteTo(4, roomid);
+                        t.WriteTo(8, bcreat ? 1 : 0);
+                        Logger.log("roomid" + roomid);
+                        send((byte)CMDPlayer.RECONNECTV1, t);
+                        await Task.Delay(30000);
+                        createchannel();
+                        while (!channel.isConnected)
+                        {
+                            await Task.Delay(100);
+                        }
+                        t = new byte[12];
+                        t.WriteTo(0, id);
+                        t.WriteTo(4, roomid);
+                        t.WriteTo(8, bcreat ? 1 : 0);
+                        Logger.log("roomid" + roomid);
+                        send((byte)CMDPlayer.RECONNECTV1, t);
+                        await Task.Delay(5000);
+                        createchannel();
+                        while (!channel.isConnected)
+                        {
+                            await Task.Delay(100);
+                        }
+                        t = new byte[12];
+                        t.WriteTo(0, id);
+                        t.WriteTo(4, roomid);
+                        t.WriteTo(8, bcreat ? 1 : 0);
+                        Logger.log("roomid" + roomid);
+                        send((byte)CMDPlayer.RECONNECTV1, t);
                     }
-                    send((byte)CMDPlayer.RECONNECTLOGIN, Encoding.getbyte(ts));
-                    await Task.Delay(1000);
-
-
-                    send((byte)CMDPlayer.MATCHREQUEST, BitConverter.GetBytes(halfroomnumber));
-                    await Task.Delay(5000);
-                    createchannel();
-                    while (!channel.isConnected)
-                    {
-                        await Task.Delay(10);
-                    }
-                    byte[] strbytes = Encoding.getbyte(ts);
-                    t = new byte[12+strbytes.Length];
-                    t.WriteTo(0, id);
-                    t.WriteTo(4, roomid);
-                    t.WriteTo(8, halfroomnumber);
-                    Array.Copy(strbytes, 0, t, 12, strbytes.Length);
-                    send((byte)CMDPlayer.RECONNECT, t);
-                    await Task.Delay(3000);
-                    //createchannel();
-                    //while (!channel.isConnected)
-                    //{
-                    //    await Task.Delay(10);
-                    //}
-                    //send((byte)CMDPlayer.RECONNECT, t);
-                    //await Task.Delay(2000);
-
-                    //createchannel();
-                    //while (!channel.isConnected)
-                    //{
-                    //    await Task.Delay(10);
-                    //}
-                    //t = new byte[12];
-                    //t.WriteTo(0, id);
-                    //t.WriteTo(4, roomid);
-                    //t.WriteTo(8, halfroomnumber);
-
-                    //send((byte)CMDPlayer.RECONNECT, t);
-                    //await Task.Delay(2000);
-
-                    //createchannel();
-                    //while (!channel.isConnected)
-                    //{
-                    //    await Task.Delay(10);
-                    //}
-                    //t = new byte[12];
-                    //t.WriteTo(0, id);
-                    //t.WriteTo(4, roomid);
-                    //t.WriteTo(8, halfroomnumber);
-
-                    //send((byte)CMDPlayer.RECONNECT, t);
-
-
-                    //await Task.Delay(2000);
-
-                    //createchannel();
-                    //while (!channel.isConnected)
-                    //{
-                    //    await Task.Delay(10);
-                    //}
-                    //t = new byte[12];
-                    //t.WriteTo(0, id);
-                    //t.WriteTo(4, roomid);
-                    //t.WriteTo(8, halfroomnumber);
-
-                    //send((byte)CMDPlayer.RECONNECT, t);
-                    //await Task.Delay(2000);
-
-                    //createchannel();
-                    //while (!channel.isConnected)
-                    //{
-                    //    await Task.Delay(10);
-                    //}
-                    //t = new byte[12];
-                    //t.WriteTo(0, id);
-                    //t.WriteTo(4, roomid);
-                    //t.WriteTo(8, halfroomnumber);
-
-                    //send((byte)CMDPlayer.RECONNECT, t);
-
-
-                    //if (bcreat)
-                    //{
-                    //    Logger.log("owner");
-                    //    send((byte)CMDPlayer.CREATEROOM, BitConverter.GetBytes(halfroomnumber));//here the halfroomnumber seem to be useless                      
-                    //    await Task.Delay(30000);
-                    //    send((byte)CMDPlayer.STARTGAME, BitConverter.GetBytes(roomnumber));
-                    //}
-                    //else
-                    //{
-                    //    Logger.log("client");
-                    //    roomnumber = RandomHelper.RandomNumber(0, roomnumber);
-                    //    send((byte)CMDPlayer.JOINROOM, BitConverter.GetBytes(roomnumber));
-                    //    await Task.Delay(5000);
-                    //    createchannel();
-                    //    while (!channel.isConnected)
-                    //    {
-                    //        await Task.Delay(100);
-                    //    }
-                    //    t = new byte[12];
-                    //    t.WriteTo(0, id);
-                    //    t.WriteTo(4, roomid);
-                    //    t.WriteTo(8, bcreat ? 1 : 0);
-                    //    Logger.log("roomid" + roomid);
-                    //    send((byte)CMDPlayer.RECONNECTV1, t);
-                    //    await Task.Delay(30000);
-                    //    createchannel();
-                    //    while (!channel.isConnected)
-                    //    {
-                    //        await Task.Delay(100);
-                    //    }
-                    //    t = new byte[12];
-                    //    t.WriteTo(0, id);
-                    //    t.WriteTo(4, roomid);
-                    //    t.WriteTo(8, bcreat ? 1 : 0);
-                    //    Logger.log("roomid" + roomid);
-                    //    send((byte)CMDPlayer.RECONNECTV1, t);
-                    //    await Task.Delay(5000);
-                    //    createchannel();
-                    //    while (!channel.isConnected)
-                    //    {
-                    //        await Task.Delay(100);
-                    //    }
-                    //    t = new byte[12];
-                    //    t.WriteTo(0, id);
-                    //    t.WriteTo(4, roomid);
-                    //    t.WriteTo(8, bcreat ? 1 : 0);
-                    //    Logger.log("roomid" + roomid);
-                    //    send((byte)CMDPlayer.RECONNECTV1, t);
-                    //}
                 }
                 catch (Exception e)
                 {
