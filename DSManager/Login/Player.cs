@@ -23,6 +23,7 @@ namespace DSManager
         RECONNECTLOGIN,
         RECONNECT,
         RECONNECTV1,
+        CHECKCONNECTION,
     }
     class Player
     {
@@ -209,6 +210,10 @@ namespace DSManager
                         ms = new MemoryStream();
                         Serializer.Serialize(ms, playerinfor_);
                         loginserver.sendtomatchserver((byte)CMDMatchServer.RECONNECTV1, ms.ToArray());
+                        break;
+                    case CMDPlayer.CHECKCONNECTION://
+                        Logger.log("CMDPlayer.CHECKCONNECTION");
+                        send((byte)CMDPlayer.CHECKCONNECTION, BitConverter.GetBytes(0));
                         break;
                     default:
                         break;

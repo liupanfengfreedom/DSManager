@@ -20,6 +20,7 @@ namespace DSManager
         int roomid;
         IPAddress ipAd;
         int port;
+        bool b_checkconnectionok = false;
         public PlayerSimulator() : base("PlayerSimulator")
         {
             ts = GetValueFromLua<string>("testmessage");      
@@ -109,6 +110,10 @@ namespace DSManager
                         result = BitConverter.ToInt32(buffer, 5);
                         Logger.log("RECONNECTV1 : " + result);
                         break;
+                    case CMDPlayer.CHECKCONNECTION:
+                        b_checkconnectionok = true;
+                        Logger.log("CHECKCONNECTION ");
+                        break;
                     default:
                         break;
                 }
@@ -130,6 +135,24 @@ namespace DSManager
                     }
                     ts += RandomHelper.RandomNumber(0, int.MaxValue);
                     send((byte)CMDPlayer.LOGIN, Encoding.getbyte(ts));
+                    await Task.Delay(1000);
+                    send((byte)CMDPlayer.CHECKCONNECTION, BitConverter.GetBytes(0));
+                    b_checkconnectionok = false;
+                    await Task.Delay(1000);
+                    if (b_checkconnectionok)
+                    { 
+                        Logger.log("connection ok !");
+                    }
+                    else {
+                        await Task.Delay(1000);
+                        createchannel();
+                        while (!channel.isConnected)
+                        {
+                            await Task.Delay(10);
+                        }
+                        send((byte)CMDPlayer.RECONNECTLOGIN, Encoding.getbyte(ts));
+                    }
+
                     //await Task.Delay(1000);
                     //createchannel();
                     //while (!channel.isConnected)
