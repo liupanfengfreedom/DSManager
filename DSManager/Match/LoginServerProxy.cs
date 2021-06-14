@@ -184,9 +184,9 @@ namespace DSManager
                         if (RoomManager.getsingleton().waitingRooms.TryGetValue(pi.roomid, out room))
                         {
                             playerinfor p1 = room.removeplayer(pi.oldplayerid);//waitingrooms and fightingrooms may contain the same roomid but playid is Globally unique
-                            if (p1 == null)
-                            { }
-                            else
+                            //if (p1 == null)
+                            //{ }
+                            //else
                             {
                                 matchserver.removefrommatchpool(pi.oldplayerid);
                                 matchserver.onlyaddtomatchpool(pi);
@@ -200,9 +200,9 @@ namespace DSManager
                         if (RoomManager.getsingleton().fightingRooms.TryGetValue(pi.roomid, out room))
                         {
                             playerinfor p1 = room.removeplayer(pi.oldplayerid);
-                            if (p1 == null)
-                            { }
-                            else
+                            //if (p1 == null)
+                            //{ }
+                            //else
                             {
                                 matchserver.removefrommatchpool(pi.oldplayerid);
                                 matchserver.onlyaddtomatchpool(pi);
